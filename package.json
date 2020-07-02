@@ -1,0 +1,29 @@
+{
+  "name": "react-native-pdftron",
+  "title": "React Native Pdftron",
+  "version": "1.0.0",
+  "description": "React Native Pdftron",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PDFTron/pdftron-react-native.git",
+    "baseUrl": "https://github.com/PDFTron/pdftron-react-native"
+  },
+  "keywords": [
+    "react-native",
+    "PDFTron",
+    "pdf",
+    "office"
+  ],
+  "readmeFilename": "README.md",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "react": "*"
+  }
+}
