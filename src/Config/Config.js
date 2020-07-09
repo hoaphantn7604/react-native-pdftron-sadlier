@@ -1,5 +1,6 @@
 export default {
   Buttons: {
+    reflowPageButton: 'reflowPageButton',
     exportButtonItem: 'exportButtonItem',
     addPagesButtonHidden: 'addPagesButtonHidden',
     viewControlsButton: 'viewControlsButton',
