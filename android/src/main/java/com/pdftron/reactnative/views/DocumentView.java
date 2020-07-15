@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -158,8 +160,15 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 .fullscreenModeEnabled(false)
                 .multiTabEnabled(false)
                 .showCloseTabOption(false)
-                .useSupportActionBar(false);
+                .useSupportActionBar(true);
     }
+
+    @Override
+    public boolean onToolbarCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.custom_toolbar_menu, menu);
+        return true;
+    }
+
 
     @Override
     protected PdfViewCtrlTabHostFragment getViewer() {
@@ -173,6 +182,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         }
         return super.getViewer();
     }
+
 
     @Override
     protected void buildViewer() {

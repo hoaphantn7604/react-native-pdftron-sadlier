@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@id/action_viewmode"
+        android:icon="@drawable/ic_viewing_mode_white_24dp"
+        android:title="@string/action_view_mode"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@id/action_annotation_toolbar"
+        android:icon="@drawable/ic_mode_edit_white"
+        android:title="@string/action_annotation_toolbar"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@id/action_search"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@string/action_search"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/undo"
+        android:icon="@drawable/ic_undo_black_24dp"
+        android:title="@string/undo"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/redo"
+        android:icon="@drawable/ic_redo_black_24dp"
+        android:title="@string/redo"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/action_share"
+        android:icon="@drawable/ic_share_white"
+        android:title="@string/action_file_share"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/action_fill_and_sign_toolbar"
+        android:icon="@drawable/ic_fill_and_sign"
+        android:title="@string/action_fill_and_sign_toolbar"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/action_form_toolbar"
+        android:icon="@drawable/ic_assignment_black_24dp"
+        android:title="@string/action_form_toolbar"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/action_reflow_mode"
+        android:checkable="true"
+        android:icon="@drawable/ic_view_mode_reflow_black_24dp"
+        android:title="@string/pref_viewmode_reflow"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@id/action_editpages"
+        android:orderInCategory="100"
+        android:title="@string/action_editpages_more"
+        android:visible="false"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@id/action_addpage"
+                android:title="@string/action_add"
+                app:showAsAction="never" />
+            <item
+                android:id="@id/action_deletepage"
+                android:title="@string/action_delete"
+                app:showAsAction="never" />
+            <item
+                android:id="@id/action_rotatepage"
+                android:title="@string/action_rotate"
+                app:showAsAction="never" />
+            <item
+                android:id="@id/action_export_pages"
+                android:title="@string/action_export_pages"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@id/action_print"
+        android:icon="@drawable/ic_print_black_24dp"
+        android:title="@string/action_file_print"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/action_close_tab"
+        android:icon="@drawable/ic_close_black_24dp"
+        android:title="@string/action_close_tab"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/action_file_attachment"
+        android:icon="@drawable/ic_attachment_black_24dp"
+        android:title="@string/action_file_attachments"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/action_pdf_layers"
+        android:orderInCategory="100"
+        android:title="@string/action_pdf_layers"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@id/action_export_options"
+        android:orderInCategory="100"
+        android:title="@string/action_export_options"
+        android:visible="false"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@id/menu_export_copy"
+                android:title="@string/action_export_original"
+                app:showAsAction="never" />
+            <item
+                android:id="@id/menu_export_flattened_copy"
+                android:title="@string/action_export_flatten"
+                app:showAsAction="never" />
+            <item
+                android:id="@id/menu_export_optimized_copy"
+                android:title="@string/action_export_optimize"
+                app:showAsAction="never" />
+            <item
+                android:id="@id/menu_export_cropped_copy"
+                android:title="@string/action_export_cropped"
+                app:showAsAction="never" />
+            <item
+                android:id="@id/menu_export_password_copy"
+                android:title="@string/action_export_password"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@id/action_edit_menu"
+        android:orderInCategory="1000"
+        android:title="@string/action_edit_menu"
+        android:visible="false"
+        app:showAsAction="never" />
+</menu>
