@@ -2,6 +2,7 @@
 
 #import "RNTPTDocumentViewController.h"
 #import "RNTPTCollaborationDocumentViewController.h"
+#import "CPTDocumentViewSettingsController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -181,6 +182,7 @@ NS_ASSUME_NONNULL_END
         [self.documentViewController openDocumentWithURL:fileURL
                                                 password:self.password];
         
+          [PTOverrides overrideClass:[PTDocumentViewSettingsController class] withClass:[CPTDocumentViewSettingsController class]];
         [self applyLayoutMode];
     } else {
         NSData *data = [[NSData alloc] initWithBase64EncodedString:self.document options:0];
@@ -196,6 +198,7 @@ NS_ASSUME_NONNULL_END
         
         [self.documentViewController openDocumentWithPDFDoc:doc];
         
+          [PTOverrides overrideClass:[PTDocumentViewSettingsController class] withClass:[CPTDocumentViewSettingsController class]];
         [self applyLayoutMode];
     }
 }

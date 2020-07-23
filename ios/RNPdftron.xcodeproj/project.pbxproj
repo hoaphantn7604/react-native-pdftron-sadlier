@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B3E7B58A1CC2AC0600A0062D /* RNPdftron.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNPdftron.m */; };
+		BFE4771324C939A700432565 /* CPTDocumentViewSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = BFE4771224C939A700432565 /* CPTDocumentViewSettingsController.m */; };
 		CE0885F020E2C9F400AB7A9B /* RNTPTDocumentView.m in Sources */ = {isa = PBXBuildFile; fileRef = CE0885EF20E2C9F400AB7A9B /* RNTPTDocumentView.m */; };
 		CE0885F320E2CA1300AB7A9B /* RNTPTDocumentViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CE0885F220E2CA1300AB7A9B /* RNTPTDocumentViewManager.m */; };
 		CE0885F620E2CAB100AB7A9B /* RNTPTPDFViewCtrl.m in Sources */ = {isa = PBXBuildFile; fileRef = CE0885F520E2CAB100AB7A9B /* RNTPTPDFViewCtrl.m */; };
@@ -31,6 +32,8 @@
 		134814201AA4EA6300B7C361 /* libRNPdftron.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNPdftron.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3E7B5881CC2AC0600A0062D /* RNPdftron.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNPdftron.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNPdftron.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNPdftron.m; sourceTree = "<group>"; };
+		BFE4771124C939A700432565 /* CPTDocumentViewSettingsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CPTDocumentViewSettingsController.h; sourceTree = "<group>"; };
+		BFE4771224C939A700432565 /* CPTDocumentViewSettingsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CPTDocumentViewSettingsController.m; sourceTree = "<group>"; };
 		CE0885EE20E2C9F400AB7A9B /* RNTPTDocumentView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNTPTDocumentView.h; sourceTree = "<group>"; };
 		CE0885EF20E2C9F400AB7A9B /* RNTPTDocumentView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNTPTDocumentView.m; sourceTree = "<group>"; };
 		CE0885F120E2CA1300AB7A9B /* RNTPTDocumentViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNTPTDocumentViewManager.h; sourceTree = "<group>"; };
@@ -65,6 +68,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				BFE4771124C939A700432565 /* CPTDocumentViewSettingsController.h */,
+				BFE4771224C939A700432565 /* CPTDocumentViewSettingsController.m */,
 				CE0885F720E2CACB00AB7A9B /* RNTPTPDFViewCtrlManager.h */,
 				CE0885F820E2CACB00AB7A9B /* RNTPTPDFViewCtrlManager.m */,
 				CE0885F420E2CAB100AB7A9B /* RNTPTPDFViewCtrl.h */,
@@ -120,6 +125,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 58B511D21A9E6C8500147676;
@@ -140,6 +146,7 @@
 				D30BB17922EFA8D000D90D24 /* RNTPTDocumentViewModule.m in Sources */,
 				CE0885F020E2C9F400AB7A9B /* RNTPTDocumentView.m in Sources */,
 				B3E7B58A1CC2AC0600A0062D /* RNPdftron.m in Sources */,
+				BFE4771324C939A700432565 /* CPTDocumentViewSettingsController.m in Sources */,
 				CE0885F320E2CA1300AB7A9B /* RNTPTDocumentViewManager.m in Sources */,
 				CE0885F920E2CACB00AB7A9B /* RNTPTPDFViewCtrlManager.m in Sources */,
 				CE0885F620E2CAB100AB7A9B /* RNTPTPDFViewCtrl.m in Sources */,
