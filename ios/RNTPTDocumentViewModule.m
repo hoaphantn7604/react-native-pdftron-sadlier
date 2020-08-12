@@ -68,6 +68,22 @@ RCT_REMAP_METHOD(getPageCount,
     }
 }
 
+RCT_REMAP_METHOD(toText,
+                 toTextForDocumentViewTag:(nonnull NSNumber *)tag
+                 number:(int)number
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+        NSString *xfdf = [[self documentViewManager] toTextForDocumentViewTag:tag
+                                                                                 number:number];
+        resolve(xfdf);
+    }
+    @catch (NSException *exception) {
+        reject(@"export_failed", @"Failed to text", [self errorFromException:exception]);
+    }
+}
+
 RCT_REMAP_METHOD(exportAnnotations,
                  exportAnnotationsForDocumentViewTag:(nonnull NSNumber *)tag
                  options:(NSDictionary *)options

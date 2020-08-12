@@ -646,6 +646,25 @@ NS_ASSUME_NONNULL_END
     return nil;
 }
 
+- (NSString *)toText:(int)number
+{
+    PTPDFViewCtrl *pdfViewCtrl = self.documentViewController.pdfViewCtrl;
+    PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+    PTPage *page = [doc GetPage:number];
+    PTTextExtractor *txt = [[PTTextExtractor alloc] init];
+    [txt Begin: page clip_ptr: 0 flags: 0]; // Read the page.
+
+    PTTextExtractorLine *line = [txt GetFirstLine];
+    PTWord *word;
+    for (; [line IsValid]; line=[line GetNextLine]) {
+        for (word=[line GetFirstWord]; [word IsValid]; word=[word GetNextWord]) {
+            //[word GetString];
+        }
+    }
+    NSString *text = [txt GetAsText:true];
+    return text;
+}
+
 - (NSString *)exportAnnotationsWithOptions:(NSDictionary *)options
 {
     PTPDFViewCtrl *pdfViewCtrl = self.documentViewController.pdfViewCtrl;
