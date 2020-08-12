@@ -135,6 +135,14 @@ export default class DocumentView extends PureComponent {
     return Promise.resolve();
   }
 
+  toText = (number) => {
+    const tag = findNodeHandle(this._viewerRef);
+    if (tag != null) {
+      return DocumentViewManager.toText(tag, number);
+    }
+    return Promise.resolve();
+  }
+
   exportAnnotations = (options) => {
     const tag = findNodeHandle(this._viewerRef);
     if (tag != null) {

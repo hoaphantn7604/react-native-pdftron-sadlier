@@ -200,6 +200,15 @@ public class DocumentViewViewManager extends ViewGroupManager<DocumentView> {
         }
     }
 
+    public String toText(int tag, int number) throws PDFNetException {
+        DocumentView documentView = mDocumentViews.get(tag);
+        if (documentView != null) {
+             return documentView.toText(number);
+        } else {
+            throw new PDFNetException("", 0L, getName(), "toTextCommand", "speech file error.");
+        }
+    }
+
     public void importAnnotations(int tag, String xfdf) throws PDFNetException {
         DocumentView documentView = mDocumentViews.get(tag);
         if (documentView != null) {

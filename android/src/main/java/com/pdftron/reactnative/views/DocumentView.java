@@ -38,6 +38,8 @@ import com.pdftron.pdf.Annot;
 import com.pdftron.pdf.Field;
 import com.pdftron.pdf.PDFDoc;
 import com.pdftron.pdf.PDFViewCtrl;
+import com.pdftron.pdf.Page;
+import com.pdftron.pdf.TextExtractor;
 import com.pdftron.pdf.ViewChangeCollection;
 import com.pdftron.pdf.config.PDFViewCtrlConfig;
 import com.pdftron.pdf.config.ToolManagerBuilder;
@@ -920,6 +922,25 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         } else {
             throw new PDFNetException("", 0L, TAG, "importAnnotationCommand", "set collabEnabled to true is required.");
         }
+    }
+
+    public String toText(int number) throws PDFNetException {
+        PDFViewCtrl pdfViewCtrl = getPdfViewCtrl();
+        PDFDoc pdfDoc = pdfViewCtrl.getDoc();
+        Page page = pdfDoc.getPage(number);
+        TextExtractor txt = new TextExtractor();
+        txt.begin(page);
+
+        // Extract words one by one.
+        TextExtractor.Word word;
+        for (TextExtractor.Line line = txt.getFirstLine(); line.isValid(); line = line.getNextLine())
+        {
+            for (word = line.getFirstWord(); word.isValid(); word = word.getNextWord())
+            {
+                //word.getString();
+            }
+        }
+        return txt.getAsText();
     }
 
     public void importAnnotations(String xfdf) throws PDFNetException {
