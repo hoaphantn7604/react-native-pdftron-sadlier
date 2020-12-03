@@ -17,6 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)rnt_documentViewController:(PTDocumentViewController *)documentViewController filterMenuItemsForAnnotationSelectionMenu:(UIMenuController *)menuController;
 
+@optional
+
+// Detect when user tap on the screen
+- (void)rnt_documentViewControllerDocumentToggleToolbar:(PTDocumentViewController *)documentViewController isHidden:(BOOL)hidden;
+
 @end
 
 @interface RNTPTDocumentViewController : PTDocumentViewController
