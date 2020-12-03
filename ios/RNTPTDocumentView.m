@@ -1214,13 +1214,6 @@ NS_ASSUME_NONNULL_END
 
 #pragma mark - <RNTPTDocumentViewControllerDelegate>
 
-- (void)rnt_documentViewControllerDocumentToggleToolbar:(PTDocumentViewController *)documentViewController isHidden:(BOOL)hidden
-{
-    if ([self.delegate respondsToSelector:@selector(documentToogleToolbar:isHidden:)]) {
-        [self.delegate documentToogleToolbar:self isHidden:hidden];
-    }
-}
-
 - (void)rnt_documentViewControllerDocumentLoaded:(PTDocumentViewController *)documentViewController
 {
     if (self.initialPageNumber > 0) {

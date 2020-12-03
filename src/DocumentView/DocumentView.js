@@ -89,12 +89,6 @@ export default class DocumentView extends PureComponent {
           'xfdfCommand': event.nativeEvent.xfdfCommand,
         });
       }
-    } else if (event.nativeEvent.onDocumentToggleToolbar) {
-      if (this.props.onDocumentToggleToolbar) {
-        this.props.onDocumentToggleToolbar({
-          'isHidden': event.nativeEvent.onDocumentToggleToolbar,
-        })
-      }
     }
   }
 

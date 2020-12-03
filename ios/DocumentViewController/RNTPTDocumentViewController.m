@@ -60,10 +60,6 @@ NS_ASSUME_NONNULL_END
         return;
     }
     
-    if ([self.delegate respondsToSelector:@selector(rnt_documentViewControllerDocumentToggleToolbar:isHidden:)]) {
-        [self.delegate rnt_documentViewControllerDocumentToggleToolbar:self isHidden:hidden];
-    }
-    
     [super setControlsHidden:hidden animated:animated];
 }
 

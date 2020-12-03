@@ -253,20 +253,6 @@ RCT_CUSTOM_VIEW_PROPERTY(thumbnailViewEditingEnabled, BOOL, RNTPTDocumentView)
 
 #pragma mark - Events
 
-/*
- * Detect when user tap on the screen
- * created at 02.12.2020
- */
-- (void)documentToogleToolbar: (RNTPTDocumentView *) sender isHidden:(BOOL)hidden
-{
-    if (sender.onChange) {
-        NSDictionary *param = @{
-            @"onDocumentToggleToolbar": @(hidden)
-        };
-        sender.onChange(param);
-    }
-}
-
 - (void)navButtonClicked: (RNTPTDocumentView *) sender
 {
     if (sender.onChange) {
