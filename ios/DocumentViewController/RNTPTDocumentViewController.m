@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-@implementation RNTPTDocumentViewController
+@implementation RNTPTDocumentViewController 
 
 @dynamic delegate;
 
@@ -30,6 +30,37 @@ NS_ASSUME_NONNULL_END
             [self.delegate rnt_documentViewControllerDocumentLoaded:self];
         }
     }
+}
+
+- (void)openCustomContentViewController
+{
+    // Initialize a new navigation lists view controller.
+    PTNavigationListsViewController* navigationListsViewController = [[PTNavigationListsViewController alloc] initWithToolManager:self.toolManager];
+
+    // Initialize an annotation, outline, and bookmark view controller with a PTPDFViewCtrl instance.
+    PTAnnotationViewController* annotationViewController = [[PTAnnotationViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+    annotationViewController.delegate = self;
+    
+    PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+    if (@available(iOS 13.0, *)) {
+        thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
+    } else {
+        // Fallback on earlier versions
+    }
+
+    PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+    outlineViewController.delegate = self;
+    outlineViewController.title = @"Table of content";
+
+    PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+    bookmarkViewController.delegate = self;
+
+    // Set the array of child view controllers to display.
+    navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
+
+    navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+    
+    [self presentViewController:navigationListsViewController animated:YES completion:nil];
 }
 
 - (void)openDocumentWithURL:(NSURL *)url password:(NSString *)password
@@ -149,4 +180,20 @@ NS_ASSUME_NONNULL_END
     [bookmarkViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - PTOutlineViewController's Delegate
+
+- (void)outlineViewController:(PTOutlineViewController *)outlineViewController selectedBookmark:(NSDictionary *)bookmark
+{
+    [outlineViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)bookmarkViewController:(PTBookmarkViewController *)bookmarkViewController selectedBookmark:(NSDictionary *)bookmark
+{
+    [bookmarkViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)annotationViewController:(PTAnnotationViewController *)annotationViewController selectedAnnotaion: (NSDictionary *)anAnnotation
+{
+     [annotationViewController dismissViewControllerAnimated:YES completion:nil];
+}
 @end

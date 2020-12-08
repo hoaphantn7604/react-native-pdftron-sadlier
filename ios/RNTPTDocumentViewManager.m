@@ -69,6 +69,13 @@ RCT_CUSTOM_VIEW_PROPERTY(showLeadingNavButton, BOOL, RNTPTDocumentView)
     }
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(showCustomizeTool, BOOL, RNTPTDocumentView)
+{
+    if (json) {
+        view.showCustomizeTool = [RCTConvert BOOL:json];
+    }
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(leadingNavButtonIcon, NSString, RNTPTDocumentView)
 {
     if (json && [RCTConvert NSString:json]) {

@@ -148,6 +148,18 @@ NS_ASSUME_NONNULL_END
                                                                      target:self
                                                                      action:@selector(navButtonClicked)];
         self.documentViewController.navigationItem.leftBarButtonItem = navButton;
+        
+    }
+    
+    if(self.showCustomizeTool) {
+       // Custom navigation tool bar icon
+       UIBarButtonItem* navigationToolbar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navigation-toolbar"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressNavigationToolbar:)];
+       self.documentViewController.navigationItem.leftBarButtonItems = [self.documentViewController.navigationItem.leftBarButtonItems arrayByAddingObject:navigationToolbar];
+       
+       // Custom add bookmark tool bar icon
+       UIBarButtonItem* bookmark = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"add-bookmark"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
+       self.documentViewController.navigationItem.rightBarButtonItems = [self.documentViewController.navigationItem.rightBarButtonItems arrayByAddingObject:bookmark];
+
     }
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:self.documentViewController];
@@ -201,6 +213,16 @@ NS_ASSUME_NONNULL_END
           [PTOverrides overrideClass:[PTDocumentViewSettingsController class] withClass:[CPTDocumentViewSettingsController class]];
         [self applyLayoutMode];
     }
+}
+
+- (IBAction)didPressNavigationToolbar:(id)sender
+{
+    [self.rnt_documentViewController openCustomContentViewController];
+}
+
+- (IBAction)didPressAddBookmark:(id)sender
+{
+   
 }
 
 - (void)unloadDocumentViewController

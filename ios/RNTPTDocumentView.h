@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) int initialPageNumber;
 @property (nonatomic) int pageNumber;
 @property (nonatomic, assign) BOOL showNavButton;
+@property (nonatomic, assign) BOOL showCustomizeTool;
 @property (nonatomic, copy, nullable) NSString *navButtonPath;
 @property (nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, assign, getter=isReadOnly) BOOL readOnly;
