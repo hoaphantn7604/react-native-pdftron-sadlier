@@ -152,13 +152,18 @@ NS_ASSUME_NONNULL_END
     }
     
     if(self.showCustomizeTool) {
-       // Custom navigation tool bar icon
-       UIBarButtonItem* navigationToolbar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navigation-toolbar"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressNavigationToolbar:)];
-       self.documentViewController.navigationItem.leftBarButtonItems = [self.documentViewController.navigationItem.leftBarButtonItems arrayByAddingObject:navigationToolbar];
+        NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
+        [rightItems removeObject:self.documentViewController.freehandButtonItem];
+        [rightItems removeObject:self.documentViewController.moreItemsButtonItem];
+        self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
+        
+        // Custom navigation tool bar icon
+        UIBarButtonItem* navigationToolbar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navigation-toolbar"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressNavigationToolbar:)];
+        self.documentViewController.navigationItem.leftBarButtonItems = [self.documentViewController.navigationItem.leftBarButtonItems arrayByAddingObject:navigationToolbar];
        
-       // Custom add bookmark tool bar icon
-       UIBarButtonItem* bookmark = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"add-bookmark"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
-       self.documentViewController.navigationItem.rightBarButtonItems = [self.documentViewController.navigationItem.rightBarButtonItems arrayByAddingObject:bookmark];
+        // Custom add bookmark tool bar icon
+        UIBarButtonItem* bookmark = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"add-bookmark"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
+        self.documentViewController.navigationItem.rightBarButtonItems = [self.documentViewController.navigationItem.rightBarButtonItems arrayByAddingObject:bookmark];
 
     }
     
