@@ -49,6 +49,10 @@ export default class DocumentView extends PureComponent {
     showCustomizeTool: PropTypes.bool,
     ...ViewPropTypes,
   };
+  
+  static defaultProps = {
+    showCustomizeTool: false,
+  }
 
   onChange = (event) => {
     if (event.nativeEvent.onLeadingNavButtonPressed) {
