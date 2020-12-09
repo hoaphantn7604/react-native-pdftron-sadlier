@@ -73,6 +73,7 @@ NS_ASSUME_NONNULL_END
             [self.delegate documentViewDetachedFromWindow:self];
         }
     }
+   
 }
 
 - (void)didMoveToSuperview
@@ -151,21 +152,8 @@ NS_ASSUME_NONNULL_END
         
     }
     
-    if(self.showCustomizeTool) {
-        NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
-        [rightItems removeObject:self.documentViewController.freehandButtonItem];
-        [rightItems removeObject:self.documentViewController.moreItemsButtonItem];
-        self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
-        
-        // Custom navigation tool bar icon
-        UIBarButtonItem* navigationToolbar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navigation-toolbar"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressNavigationToolbar:)];
-        self.documentViewController.navigationItem.leftBarButtonItems = [self.documentViewController.navigationItem.leftBarButtonItems arrayByAddingObject:navigationToolbar];
-       
-        // Custom add bookmark tool bar icon
-        UIBarButtonItem* bookmark = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"add-bookmark"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
-        self.documentViewController.navigationItem.rightBarButtonItems = [self.documentViewController.navigationItem.rightBarButtonItems arrayByAddingObject:bookmark];
-
-    }
+    // Apply customeze tool
+    [self applyCustomizeTool];
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:self.documentViewController];
     
@@ -302,6 +290,7 @@ NS_ASSUME_NONNULL_END
     [center removeObserver:self
                       name:PTToolManagerAnnotationRemovedNotification
                     object:self.documentViewController.toolManager];
+    
 }
 
 #pragma mark - Disabling elements
@@ -383,6 +372,10 @@ NS_ASSUME_NONNULL_END
         @"reflowButton":
             ^{
                 self.documentViewController.readerModeButtonHidden = YES;
+            },
+        @"freehandButtonHidden":
+            ^{
+                self.documentViewController.freehandButtonHidden = YES;
             },
     };
     
@@ -1055,6 +1048,28 @@ NS_ASSUME_NONNULL_END
     
     // Color mode.
     [self applyColorMode];
+    
+}
+
+- (void)applyCustomizeTool
+{
+    if(self.showCustomizeTool) {
+        if ( UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPad )
+        {
+           NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
+                 [rightItems addObject:self.documentViewController.searchButtonItem];
+                 self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
+        }
+      
+        // Custom navigation tool bar icon
+        UIBarButtonItem* navigationToolbar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navigation-toolbar"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressNavigationToolbar:)];
+        self.documentViewController.navigationItem.leftBarButtonItems = [self.documentViewController.navigationItem.leftBarButtonItems arrayByAddingObject:navigationToolbar];
+       
+        // Custom add bookmark tool bar icon
+        UIBarButtonItem* bookmark = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"add-bookmark"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
+        self.documentViewController.navigationItem.rightBarButtonItems = [self.documentViewController.navigationItem.rightBarButtonItems arrayByAddingObject:bookmark];
+
+    }
 }
 
 - (void)applyLayoutMode
