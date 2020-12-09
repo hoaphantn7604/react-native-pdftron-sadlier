@@ -1068,6 +1068,24 @@ NS_ASSUME_NONNULL_END
         // Custom add bookmark tool bar icon
         UIBarButtonItem* bookmark = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"add-bookmark"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
         self.documentViewController.navigationItem.rightBarButtonItems = [self.documentViewController.navigationItem.rightBarButtonItems arrayByAddingObject:bookmark];
+        
+      
+       
+        
+        self.documentViewController.annotationToolbar.precedenceArray = @[
+                                             @(PTAnnotBarButtonStickynote),
+                                                @(PTAnnotBarButtonFreehand),
+                                                @(PTAnnotBarButtonEraser),
+                                                @(PTAnnotBarButtonFreetext),
+                                                @(PTAnnotBarButtonArrow),
+                                                @(PTAnnotBarButtonLine),
+                                                @(PTAnnotBarButtonRectangle),
+                                                @(PTAnnotBarButtonEllipse),
+                                                @(PTAnnotBarButtonPolygon),
+                                                @(PTAnnotBarButtonCloud),
+                                                @(PTAnnotBarButtonPolyline),
+                                                @(PTAnnotBarButtonClose),];
+        
 
     }
 }
