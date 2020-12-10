@@ -1,11 +1,16 @@
 package com.pdftron.reactnative.nativeviews;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,9 +28,10 @@ import com.pdftron.reactnative.R;
 import java.util.ArrayList;
 
 public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment {
-    private final String TAG = "ahihi-"+ CustomPdfViewCtrlTabHostFragment.class.getSimpleName() ;
+    private final String TAG = "ahihi-" + CustomPdfViewCtrlTabHostFragment.class.getSimpleName();
     protected ImageButton mBtnBookmark;
-    protected  boolean mShowCustomizeTool = false;
+    protected MenuItem mMenuBookmark;
+    protected boolean mShowCustomizeTool = false;
 
     @Nullable
     @Override
@@ -38,26 +44,46 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.mBtnBookmark = view.findViewById(R.id.btnBookmark);
-        this.mBtnBookmark.setVisibility(this.mShowCustomizeTool? View.VISIBLE:View.GONE);
+        this.mBtnBookmark.setVisibility(this.mShowCustomizeTool ? View.VISIBLE : View.GONE);
         this.mBtnBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: ");
                 PdfViewCtrlTabFragment fragment = CustomPdfViewCtrlTabHostFragment.this.getCurrentPdfViewCtrlFragment();
-               if(fragment instanceof RNPdfViewCtrlTabFragment){
-                   ((RNPdfViewCtrlTabFragment) fragment).openNavigationUIControl();
-               }
+                if (fragment instanceof RNPdfViewCtrlTabFragment) {
+                    ((RNPdfViewCtrlTabFragment) fragment).openNavigationUIControl();
+                }
             }
         });
+
+        Activity activity = this.getActivity();
+        if (activity != null) {
+            this.onCreateOptionsMenu(this.mToolbar.getMenu(), new MenuInflater(activity));
+        }
+
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    protected void initOptionsMenu(Menu menu) {
+        super.initOptionsMenu(menu);
+        Activity activity = this.getActivity();
+        if (activity != null && this.mShowCustomizeTool) {
+            this.mMenuBookmark = menu.getItem(0);
+            this.mMenuBookmark.setVisible(this.mShowCustomizeTool);
+        }
     }
 
     @Override
     protected ArrayList<DialogFragmentTab> getBookmarksDialogTabs() {
-        int numOfTabs = this.mShowCustomizeTool ? 4: 3;
+        int numOfTabs = this.mShowCustomizeTool ? 4 : 3;
         DialogFragmentTab userBookmarkTab = this.createUserBookmarkDialogTab();
         DialogFragmentTab outlineTab = this.createOutlineDialogTab();
         DialogFragmentTab annotationTab = this.createAnnotationDialogTab();
-
 
         ArrayList<DialogFragmentTab> dialogFragmentTabs = new ArrayList(numOfTabs);
         boolean canAdd;
@@ -69,8 +95,8 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
             }
         }
 
-        if(this.mShowCustomizeTool){
-            DialogFragmentTab thumbnailTab  = this.createThumbnailDialogTab();
+        if (this.mShowCustomizeTool) {
+            DialogFragmentTab thumbnailTab = this.createThumbnailDialogTab();
             if (thumbnailTab != null) {
                 canAdd = this.mViewerConfig == null || this.mViewerConfig.isShowAnnotationsList();
                 if (canAdd) {
@@ -78,7 +104,6 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
                 }
             }
         }
-
 
         if (annotationTab != null) {
             canAdd = this.mViewerConfig == null || this.mViewerConfig.isShowAnnotationsList();
@@ -94,32 +119,29 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
             }
         }
 
-
-
         return dialogFragmentTabs;
     }
 
     private DialogFragmentTab createThumbnailDialogTab() {
-            PdfViewCtrlTabFragment currentFragment = this.getCurrentPdfViewCtrlFragment();
-            if (currentFragment == null) {
+        PdfViewCtrlTabFragment currentFragment = this.getCurrentPdfViewCtrlFragment();
+        if (currentFragment == null) {
+            return null;
+        } else {
+            PDFViewCtrl pdfViewCtrl = currentFragment.getPDFViewCtrl();
+            if (pdfViewCtrl == null) {
                 return null;
             } else {
-                PDFViewCtrl pdfViewCtrl = currentFragment.getPDFViewCtrl();
-                if (pdfViewCtrl == null) {
-                    return null;
-                } else {
-                    Bundle bundle = new Bundle();
-                    boolean readonly = currentFragment.isTabReadOnly();
-                    if (!readonly && this.mViewerConfig != null && !this.mViewerConfig.isUserBookmarksListEditingEnabled()) {
-                        readonly = true;
-                    }
-
-                    bundle.putBoolean("is_read_only", false);
-                    return new DialogFragmentTab(ThumbnailDialogFragment.class, "tab-outline", Utils.getDrawable(this.getContext(), R.drawable.toolbar_page), (String)null, "Thumbnails", bundle);
+                Bundle bundle = new Bundle();
+                boolean readonly = currentFragment.isTabReadOnly();
+                if (!readonly && this.mViewerConfig != null && !this.mViewerConfig.isUserBookmarksListEditingEnabled()) {
+                    readonly = true;
                 }
+
+                bundle.putBoolean("is_read_only", false);
+                return new DialogFragmentTab(ThumbnailDialogFragment.class, "tab-outline", Utils.getDrawable(this.getContext(), R.drawable.toolbar_page), (String) null, "Thumbnails", bundle);
             }
         }
-
+    }
 
     @Override
     protected BookmarksDialogFragment createBookmarkDialogFragmentInstance() {
@@ -127,18 +149,14 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
         return BookmarksDialogFragment.newInstance(mode);
     }
 
-
     protected BookmarksDialogFragment createCustomBookmarkDialogFragmentInstance() {
         CustomBookmarkDialogFragment.DialogMode mode = this.canOpenNavigationListAsSideSheet() ? CustomBookmarkDialogFragment.DialogMode.SHEET : CustomBookmarkDialogFragment.DialogMode.DIALOG;
         return CustomBookmarkDialogFragment.newInstance(mode);
-
     }
 
-
-    // vấn đề ở đây cần phải set pdfViewCtrl vào ThumbnaiDialog để get load đc data
     @Override
     public void onOutlineOptionSelected(int initialTabIndex) {
-        Log.d(TAG, "onOutlineOptionSelected: "+initialTabIndex);
+        Log.d(TAG, "onOutlineOptionSelected: " + initialTabIndex);
         PdfViewCtrlTabFragment currentFragment = this.getCurrentPdfViewCtrlFragment();
         if (currentFragment != null) {
             PDFViewCtrl pdfViewCtrl = currentFragment.getPDFViewCtrl();
@@ -151,7 +169,7 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
                         this.mBookmarksDialog.dismiss();
                     }
 
-               //     this.mBookmarksDialog = this.createBookmarkDialogFragmentInstance();
+                    // this.mBookmarksDialog = this.createBookmarkDialogFragmentInstance();
                     this.mBookmarksDialog = this.createCustomBookmarkDialogFragmentInstance();
                     this.mBookmarksDialog.setPdfViewCtrl(pdfViewCtrl).setDialogFragmentTabs(this.getBookmarksDialogTabs(), initialTabIndex).setCurrentBookmark(this.mCurrentBookmark);
                     this.mBookmarksDialog.setBookmarksDialogListener(this);

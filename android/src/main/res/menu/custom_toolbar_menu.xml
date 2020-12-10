@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@id/action_search"
+        android:id="@id/action_bookmark"
         android:icon="@drawable/add_bookmark"
-        android:title="@string/action_search"
+        android:title="@string/action_bookmark"
         android:iconTint="#FFFFFF"
         app:showAsAction="always" />
 

@@ -11,9 +11,11 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,6 +55,7 @@ import com.pdftron.pdf.tools.FreehandCreate;
 import com.pdftron.pdf.tools.QuickMenu;
 import com.pdftron.pdf.tools.QuickMenuItem;
 import com.pdftron.pdf.tools.ToolManager;
+import com.pdftron.pdf.utils.BookmarkManager;
 import com.pdftron.pdf.utils.PdfDocManager;
 import com.pdftron.pdf.utils.PdfViewCtrlSettingsManager;
 import com.pdftron.pdf.utils.Utils;
@@ -72,7 +75,7 @@ import java.util.Map;
 
 public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
 
-    private static final String TAG = "ahihi-"+DocumentView.class.getSimpleName();
+    private static final String TAG = "ahihi-" + DocumentView.class.getSimpleName();
 
     // EVENTS
     private static final String ON_NAV_BUTTON_PRESSED = "onLeadingNavButtonPressed";
@@ -99,37 +102,152 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     private static final String KEY_annotations = "annotations";
     private static final String KEY_xfdfCommand = "xfdfCommand";
     // EVENTS END
+    private final Runnable mLayoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            measure(
+                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
+            layout(getLeft(), getTop(), getRight(), getBottom());
+        }
+    };
+    private final ArrayList<ToolManager.ToolMode> mDisabledTools = new ArrayList<>();
+    private final PDFViewCtrl.PageChangeListener mPageChangeListener = new PDFViewCtrl.PageChangeListener() {
+        @Override
+        public void onPageChange(int old_page, int cur_page, PDFViewCtrl.PageChangeState pageChangeState) {
+            if (old_page != cur_page || pageChangeState == PDFViewCtrl.PageChangeState.END) {
+                WritableMap params = Arguments.createMap();
+                params.putString(ON_PAGE_CHANGED, ON_PAGE_CHANGED);
+                params.putInt(PREV_PAGE_KEY, old_page);
+                params.putInt(PAGE_CURRENT_KEY, cur_page);
+                onReceiveNativeEvent(params);
+            }
+        }
+    };
+    private final PDFViewCtrl.OnCanvasSizeChangeListener mOnCanvasSizeChangeListener = new PDFViewCtrl.OnCanvasSizeChangeListener() {
+        @Override
+        public void onCanvasSizeChanged() {
+            WritableMap params = Arguments.createMap();
+            params.putString(ON_ZOOM_CHANGED, ON_ZOOM_CHANGED);
+            params.putDouble(ZOOM_KEY, getPdfViewCtrl().getZoom());
+            onReceiveNativeEvent(params);
+        }
+    };
+    private final ToolManager.AnnotationModificationListener mAnnotationModificationListener = new ToolManager.AnnotationModificationListener() {
+        @Override
+        public void onAnnotationsAdded(Map<Annot, Integer> map) {
+            handleAnnotationChanged(KEY_action_add, map);
+        }
 
+        @Override
+        public void onAnnotationsPreModify(Map<Annot, Integer> map) {
+
+        }
+
+        @Override
+        public void onAnnotationsModified(Map<Annot, Integer> map, Bundle bundle) {
+            handleAnnotationChanged(KEY_action_modify, map);
+        }
+
+        @Override
+        public void onAnnotationsPreRemove(Map<Annot, Integer> map) {
+            handleAnnotationChanged(KEY_action_delete, map);
+        }
+
+        @Override
+        public void onAnnotationsRemoved(Map<Annot, Integer> map) {
+
+        }
+
+        @Override
+        public void onAnnotationsRemovedOnPage(int i) {
+
+        }
+
+        @Override
+        public void annotationsCouldNotBeAdded(String s) {
+
+        }
+    };
     private String mDocumentPath;
     private boolean mIsBase64;
     private File mTempFile;
-
     private FragmentManager mFragmentManagerSave; // used to deal with lifecycle issue
-
     private PDFViewCtrlConfig mPDFViewCtrlConfig;
     private ToolManagerBuilder mToolManagerBuilder;
     private ViewerConfig.Builder mBuilder;
-
-    private ArrayList<ToolManager.ToolMode> mDisabledTools = new ArrayList<>();
-
     private String mCacheDir;
     private int mInitialPageNumber = -1;
-
     private boolean mTopToolbarEnabled = true;
     private boolean mPadStatusBar;
-
     private boolean mAutoSaveEnabled = true;
-
     // collab
     private CollabManager mCollabManager;
     private boolean mCollabEnabled;
     private String mCurrentUser;
     private String mCurrentUserName;
-
     // quick menu
     private ReadableArray mAnnotMenuItems;
+    private final ToolManager.QuickMenuListener mQuickMenuListener = new ToolManager.QuickMenuListener() {
+        @Override
+        public boolean onQuickMenuClicked(QuickMenuItem quickMenuItem) {
+            return false;
+        }
 
+        @Override
+        public boolean onShowQuickMenu(QuickMenu quickMenu, Annot annot) {
+            // remove unwanted items
+            if (mAnnotMenuItems != null && annot != null) {
+                ArrayList<Object> keepList = mAnnotMenuItems.toArrayList();
+                List<QuickMenuItem> removeList = new ArrayList<>();
+                checkQuickMenu(quickMenu.getFirstRowMenuItems(), keepList, removeList);
+                checkQuickMenu(quickMenu.getSecondRowMenuItems(), keepList, removeList);
+                checkQuickMenu(quickMenu.getOverflowMenuItems(), keepList, removeList);
+                quickMenu.removeMenuEntries(removeList);
+
+                if (quickMenu.getFirstRowMenuItems().size() == 0) {
+                    quickMenu.setDividerVisibility(View.GONE);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public void onQuickMenuShown() {
+
+        }
+
+        @Override
+        public void onQuickMenuDismissed() {
+
+        }
+    };
     private boolean mShowCustomizeTool = false;
+    private boolean mShouldHandleKeyboard = false;
+    private final ViewTreeObserver.OnGlobalLayoutListener mOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout() {
+            Rect r = new Rect();
+            getWindowVisibleDisplayFrame(r);
+            int screenHeight = getRootView().getHeight();
+
+            // r.bottom is the position above soft keypad or device button.
+            // if keypad is shown, the r.bottom is smaller than that before.
+            int keypadHeight = screenHeight - r.bottom;
+
+            if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
+                // keyboard is opened
+                mShouldHandleKeyboard = true;
+            } else {
+                // keyboard is closed
+                if (mShouldHandleKeyboard) {
+                    mShouldHandleKeyboard = false;
+                    requestLayout();
+                }
+            }
+        }
+    };
+
 
     public DocumentView(Context context) {
         super(context);
@@ -169,13 +287,26 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 .useSupportActionBar(true);
     }
 
-
     @Override
     public boolean onToolbarCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.custom_toolbar_menu, menu);
         return true;
     }
 
+    @Override
+    public boolean onToolbarOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_bookmark) {
+            try {
+                // Toast.makeText(this.getContext(), "Click " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                int pageNumber = this.getPdfViewCtrl().getCurrentPage();
+                long curObjNum = this.getPdfViewCtrl().getDoc().getPage(pageNumber).getSDFObj().getObjNum();
+                BookmarkManager.addPdfBookmark(this.getContext(), this.getPdfViewCtrl(), curObjNum, pageNumber);
+            } catch (PDFNetException e) {
+                e.printStackTrace();
+            }
+        }
+        return super.onToolbarOptionsItemSelected(item);
+    }
 
     @Override
     protected PdfViewCtrlTabHostFragment getViewer() {
@@ -195,7 +326,6 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 .build(getContext()).useCustomizeTool(this.mShowCustomizeTool);
         // return super.getViewer();
     }
-
 
     @Override
     protected void buildViewer() {
@@ -304,7 +434,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         }
     }
 
-    public void setColorMode(Integer colorMode){
+    public void setColorMode(Integer colorMode) {
         Log.i("Log color mode", String.valueOf(colorMode));
         Context context = getContext();
         if (colorMode != null && context != null) {
@@ -428,7 +558,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                                 ViewModePickerDialogFragment.ViewModePickerItems.ITEM_ID_USERCROP,
                         }
                 );
-            }else if ("reflowPageButton".equals(item)) {
+            } else if ("reflowPageButton".equals(item)) {
                 mBuilder = mBuilder.hideViewModeItems(
                         new ViewModePickerDialogFragment.ViewModePickerItems[]{
                                 ViewModePickerDialogFragment.ViewModePickerItems.ITEM_ID_REFLOW,
@@ -495,7 +625,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
             mode = ToolManager.ToolMode.AREA_MEASURE_CREATE;
         } else if ("AnnotationCreateFileAttachment".equals(item)) {
             mode = ToolManager.ToolMode.FILE_ATTACHMENT_CREATE;
-        }  else if ("AnnotationCreateSound".equals(item)) {
+        } else if ("AnnotationCreateSound".equals(item)) {
             mode = ToolManager.ToolMode.SOUND_CREATE;
         } else if ("TextSelect".equals(item)) {
             mode = ToolManager.ToolMode.TEXT_SELECT;
@@ -581,42 +711,6 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 .toolManagerBuilder(mToolManagerBuilder)
                 .build();
     }
-
-    private boolean mShouldHandleKeyboard = false;
-
-    private final ViewTreeObserver.OnGlobalLayoutListener mOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-        @Override
-        public void onGlobalLayout() {
-            Rect r = new Rect();
-            getWindowVisibleDisplayFrame(r);
-            int screenHeight = getRootView().getHeight();
-
-            // r.bottom is the position above soft keypad or device button.
-            // if keypad is shown, the r.bottom is smaller than that before.
-            int keypadHeight = screenHeight - r.bottom;
-
-            if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
-                // keyboard is opened
-                mShouldHandleKeyboard = true;
-            } else {
-                // keyboard is closed
-                if (mShouldHandleKeyboard) {
-                    mShouldHandleKeyboard = false;
-                    requestLayout();
-                }
-            }
-        }
-    };
-
-    private final Runnable mLayoutRunnable = new Runnable() {
-        @Override
-        public void run() {
-            measure(
-                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
-            layout(getLeft(), getTop(), getRight(), getBottom());
-        }
-    };
 
     @Override
     public void requestLayout() {
@@ -724,101 +818,6 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     public boolean canRecreateActivity() {
         return false;
     }
-
-    private ToolManager.QuickMenuListener mQuickMenuListener = new ToolManager.QuickMenuListener() {
-        @Override
-        public boolean onQuickMenuClicked(QuickMenuItem quickMenuItem) {
-            return false;
-        }
-
-        @Override
-        public boolean onShowQuickMenu(QuickMenu quickMenu, Annot annot) {
-            // remove unwanted items
-            if (mAnnotMenuItems != null && annot != null) {
-                ArrayList<Object> keepList = mAnnotMenuItems.toArrayList();
-                List<QuickMenuItem> removeList = new ArrayList<>();
-                checkQuickMenu(quickMenu.getFirstRowMenuItems(), keepList, removeList);
-                checkQuickMenu(quickMenu.getSecondRowMenuItems(), keepList, removeList);
-                checkQuickMenu(quickMenu.getOverflowMenuItems(), keepList, removeList);
-                quickMenu.removeMenuEntries(removeList);
-
-                if (quickMenu.getFirstRowMenuItems().size() == 0) {
-                    quickMenu.setDividerVisibility(View.GONE);
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public void onQuickMenuShown() {
-
-        }
-
-        @Override
-        public void onQuickMenuDismissed() {
-
-        }
-    };
-
-    private PDFViewCtrl.PageChangeListener mPageChangeListener = new PDFViewCtrl.PageChangeListener() {
-        @Override
-        public void onPageChange(int old_page, int cur_page, PDFViewCtrl.PageChangeState pageChangeState) {
-            if (old_page != cur_page || pageChangeState == PDFViewCtrl.PageChangeState.END) {
-                WritableMap params = Arguments.createMap();
-                params.putString(ON_PAGE_CHANGED, ON_PAGE_CHANGED);
-                params.putInt(PREV_PAGE_KEY, old_page);
-                params.putInt(PAGE_CURRENT_KEY, cur_page);
-                onReceiveNativeEvent(params);
-            }
-        }
-    };
-
-    private PDFViewCtrl.OnCanvasSizeChangeListener mOnCanvasSizeChangeListener = new PDFViewCtrl.OnCanvasSizeChangeListener() {
-        @Override
-        public void onCanvasSizeChanged() {
-            WritableMap params = Arguments.createMap();
-            params.putString(ON_ZOOM_CHANGED, ON_ZOOM_CHANGED);
-            params.putDouble(ZOOM_KEY, getPdfViewCtrl().getZoom());
-            onReceiveNativeEvent(params);
-        }
-    };
-
-    private ToolManager.AnnotationModificationListener mAnnotationModificationListener = new ToolManager.AnnotationModificationListener() {
-        @Override
-        public void onAnnotationsAdded(Map<Annot, Integer> map) {
-            handleAnnotationChanged(KEY_action_add, map);
-        }
-
-        @Override
-        public void onAnnotationsPreModify(Map<Annot, Integer> map) {
-
-        }
-
-        @Override
-        public void onAnnotationsModified(Map<Annot, Integer> map, Bundle bundle) {
-            handleAnnotationChanged(KEY_action_modify, map);
-        }
-
-        @Override
-        public void onAnnotationsPreRemove(Map<Annot, Integer> map) {
-            handleAnnotationChanged(KEY_action_delete, map);
-        }
-
-        @Override
-        public void onAnnotationsRemoved(Map<Annot, Integer> map) {
-
-        }
-
-        @Override
-        public void onAnnotationsRemovedOnPage(int i) {
-
-        }
-
-        @Override
-        public void annotationsCouldNotBeAdded(String s) {
-
-        }
-    };
 
     private void handleAnnotationChanged(String action, Map<Annot, Integer> map) {
         WritableMap params = Arguments.createMap();
@@ -945,10 +944,8 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
 
         // Extract words one by one.
         TextExtractor.Word word;
-        for (TextExtractor.Line line = txt.getFirstLine(); line.isValid(); line = line.getNextLine())
-        {
-            for (word = line.getFirstWord(); word.isValid(); word = word.getNextWord())
-            {
+        for (TextExtractor.Line line = txt.getFirstLine(); line.isValid(); line = line.getNextLine()) {
+            for (word = line.getFirstWord(); word.isValid(); word = word.getNextWord()) {
                 //word.getString();
             }
         }
@@ -1239,7 +1236,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 event);
     }
 
-    public void openNavigationUIControl(){
+    public void openNavigationUIControl() {
         ((RNPdfViewCtrlTabFragment) this.getPdfViewCtrlTabFragment()).openNavigationUIControl();
     }
 
