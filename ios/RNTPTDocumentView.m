@@ -215,9 +215,12 @@ NS_ASSUME_NONNULL_END
 
 - (IBAction)didPressAddBookmark:(id)sender
 {
-    PTPDFViewCtrl *pdfViewCtrl = self.documentViewController.pdfViewCtrl;
+    PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
     PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+    PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage] pageNumber:self.pdfViewCtrl.currentPage];
     
+    PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
+    [manager addBookmark:userBookmark forDoc:doc];
 }
 
 - (void)unloadDocumentViewController
