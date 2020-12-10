@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -191,6 +192,13 @@ public class DocumentViewViewManager extends ViewGroupManager<DocumentView> {
         documentView.setThumbnailViewEditingEnabled(thumbnailViewEditingEnabled);
     }
 
+    @ReactProp(name = "showCustomizeTool")
+    public void setShowCustomizeToolEnabled(DocumentView documentView, boolean showCustomizeTool) {
+        documentView.showCustomizeTool(showCustomizeTool);
+    }
+
+
+
     public void importAnnotationCommand(int tag, String xfdfCommand, boolean initialLoad) throws PDFNetException {
         DocumentView documentView = mDocumentViews.get(tag);
         if (documentView != null) {
@@ -287,6 +295,15 @@ public class DocumentViewViewManager extends ViewGroupManager<DocumentView> {
             documentView.setValueForFields(map);
         } else {
             throw new PDFNetException("", 0L, getName(), "setValueForFields", "Unable to find DocumentView.");
+        }
+    }
+
+    public void openNavigationUIControl(int tag) throws PDFNetException {
+        DocumentView documentView = mDocumentViews.get(tag);
+        if (documentView != null) {
+             documentView.openNavigationUIControl();
+        } else {
+            throw new PDFNetException("", 0L, getName(), "openNavigationUIControl", "Unable to find DocumentView.");
         }
     }
 

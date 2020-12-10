@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,6 +58,7 @@ import com.pdftron.pdf.utils.PdfViewCtrlSettingsManager;
 import com.pdftron.pdf.utils.Utils;
 import com.pdftron.pdf.utils.ViewerUtils;
 import com.pdftron.reactnative.R;
+import com.pdftron.reactnative.nativeviews.CustomViewerBuilder;
 import com.pdftron.reactnative.nativeviews.RNPdfViewCtrlTabFragment;
 import com.pdftron.reactnative.utils.ReactUtils;
 
@@ -70,7 +72,7 @@ import java.util.Map;
 
 public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
 
-    private static final String TAG = DocumentView.class.getSimpleName();
+    private static final String TAG = "ahihi-"+DocumentView.class.getSimpleName();
 
     // EVENTS
     private static final String ON_NAV_BUTTON_PRESSED = "onLeadingNavButtonPressed";
@@ -127,6 +129,8 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     // quick menu
     private ReadableArray mAnnotMenuItems;
 
+    private boolean mShowCustomizeTool = false;
+
     public DocumentView(Context context) {
         super(context);
     }
@@ -165,6 +169,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 .useSupportActionBar(true);
     }
 
+
     @Override
     public boolean onToolbarCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.custom_toolbar_menu, menu);
@@ -182,7 +187,13 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                     .usingCustomHeaders(mCustomHeaders)
                     .build(getContext());
         }
-        return super.getViewer();
+
+        return CustomViewerBuilder.withUri(mDocumentUri, mPassword)
+                .usingConfig(mViewerConfig)
+                .usingNavIcon(mShowNavIcon ? mNavIconRes : 0)
+                .usingCustomHeaders(mCustomHeaders)
+                .build(getContext()).useCustomizeTool(this.mShowCustomizeTool);
+        // return super.getViewer();
     }
 
 
@@ -190,6 +201,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     protected void buildViewer() {
         super.buildViewer();
         mViewerBuilder = mViewerBuilder.usingTabClass(RNPdfViewCtrlTabFragment.class);
+
     }
 
     public void setDocument(String path) {
@@ -1225,5 +1237,13 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 getId(),
                 "topChange",
                 event);
+    }
+
+    public void openNavigationUIControl(){
+        ((RNPdfViewCtrlTabFragment) this.getPdfViewCtrlTabFragment()).openNavigationUIControl();
+    }
+
+    public void showCustomizeTool(boolean showCustomizeTool) {
+        this.mShowCustomizeTool = showCustomizeTool;
     }
 }

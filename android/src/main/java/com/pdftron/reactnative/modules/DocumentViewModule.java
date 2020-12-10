@@ -11,6 +11,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.pdftron.reactnative.viewmanagers.DocumentViewViewManager;
+import com.pdftron.reactnative.views.DocumentView;
 
 public class DocumentViewModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
@@ -23,6 +24,8 @@ public class DocumentViewModule extends ReactContextBaseJavaModule implements Ac
         reactContext.addActivityEventListener(this);
 
         mDocumentViewInstance = viewManager;
+
+
     }
 
     @Override
@@ -189,6 +192,20 @@ public class DocumentViewModule extends ReactContextBaseJavaModule implements Ac
                     promise.resolve(null);
                 } catch (Exception ex) {
                     promise.reject(ex);
+                }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void openNavigationUIControl(final int tag){
+        getReactApplicationContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mDocumentViewInstance.openNavigationUIControl(tag);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });

@@ -3,10 +3,12 @@ package com.pdftron.reactnative.nativeviews;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.PointF;
+import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 
 import com.pdftron.pdf.controls.PdfViewCtrlTabFragment;
+import com.pdftron.pdf.dialog.BookmarksDialogFragment;
 import com.pdftron.pdf.tools.ToolManager;
 import com.pdftron.pdf.utils.ViewerUtils;
 
@@ -21,10 +23,20 @@ import io.reactivex.schedulers.Schedulers;
 
 public class RNPdfViewCtrlTabFragment extends PdfViewCtrlTabFragment {
 
+    private final String TAG = "ahihi: ";
+
     @Override
     protected void initLayout() {
         super.initLayout();
+        Log.d(TAG, "initLayout: ");
         this.mDownloadDocumentDialog.setMessage("Opening book...");
+
+    }
+
+    @Override
+    public void openNavigationList(BookmarksDialogFragment bookmarksDialogFragment, int marginTop, int marginBottom) {
+        Log.d(TAG, "openNavigationList: ");
+        super.openNavigationList(bookmarksDialogFragment, marginTop, marginBottom);
     }
 
     @Override
@@ -88,6 +100,7 @@ public class RNPdfViewCtrlTabFragment extends PdfViewCtrlTabFragment {
         mAnnotTargetPage = targetPage;
         mTargetWidget = widget;
         mOutputFileUri = ViewerUtils.openImageIntent(activity);
+
     }
 
     @Override
@@ -101,4 +114,15 @@ public class RNPdfViewCtrlTabFragment extends PdfViewCtrlTabFragment {
         mAnnotTargetPoint = targetPoint;
         ViewerUtils.openFileIntent(activity);
     }
+
+    @Override
+    public void setBookmarkDialogCurrentTab(int index) {
+        super.setBookmarkDialogCurrentTab(index);
+    }
+    // mới thêm vô đây
+    public void openNavigationUIControl(){
+        this.mTabListener.onOutlineOptionSelected();
+    }
+
+
 }

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.view.DispatchFairInsetsRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pdfviewctrl_tab_host"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <!-- This layout *MUST* have android:fitsSystemWindows="true" so that insets can be applied
+         as padding when fullscreen mode is disabled. -->
+    <android.view.DispatchFairInsetsFrameLayout
+        android:id="@+id/realtabcontent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:layout="@layout/controls_fragment_tabbed_pdfviewctrl_tab_content" >
+    </android.view.DispatchFairInsetsFrameLayout>
+
+    <!-- NOTE: This layout *MUST* have android:fitsSystemWindows="true" so that
+         it is not positioned behind the status bar. -->
+    <com.pdftron.pdf.widget.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:elevation="@dimen/actionbar_elevation"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ToolbarTheme">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            app:popupTheme="@style/ToolbarPopupTheme"
+            app:contentInsetStart="@dimen/second_keyline"
+            app:navigationContentDescription="@string/abc_action_bar_up_description"
+            app:navigationIcon="@drawable/ic_arrow_back_white_24dp" >
+            <ImageButton
+                android:id="@+id/btnBookmark"
+                android:tint="#FFFFFF"
+                android:background="@null"
+                android:src="@drawable/navigation_toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </androidx.appcompat.widget.Toolbar>
+
+        <com.pdftron.pdf.controls.SearchToolbar
+            android:id="@+id/searchToolbar"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ToolbarTheme"
+            app:popupTheme="@style/ToolbarPopupTheme"
+            app:contentInsetStart="@dimen/second_keyline"
+            app:navigationContentDescription="@string/abc_action_bar_up_description"
+            app:navigationIcon="@drawable/ic_arrow_back_white_24dp" >
+
+        </com.pdftron.pdf.controls.SearchToolbar>
+
+        <!-- The tabPaddingStart and tabPaddingEnd attributes are changed from their default values
+             of 12dp (internal library values) because we need the custom tab views to fill the
+             entire space with their selectable backgrounds.
+             The tabContentStart attribute is only used when the TabLayout's tab mode is set to
+             the scrollable mode. -->
+        <com.pdftron.pdf.controls.CustomFragmentTabLayout
+            android:id="@+id/doc_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/tab_layout_height"
+            android:clipToPadding="false"
+            style="@style/PdfTabLayoutStyle" />
+
+    </com.pdftron.pdf.widget.AppBarLayout>
+
+    <android.view.DispatchFairInsetsFrameLayout
+        android:id="@+id/adjust_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:layout_below="@id/app_bar_layout"/>
+
+    <com.pdftron.pdf.widget.IgnoreTopInsetCoordinatorLayout
+        android:id="@+id/controls_pane_coordinator_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/app_bar_layout"
+
+        android:fitsSystemWindows="true">
+
+        <ViewStub
+            android:id="@+id/controls_search_results_stub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inflatedId="@+id/controls_search_results"
+            android:layout="@layout/controls_search_results_layout" />
+
+    </com.pdftron.pdf.widget.IgnoreTopInsetCoordinatorLayout>
+
+</android.view.DispatchFairInsetsRelativeLayout>

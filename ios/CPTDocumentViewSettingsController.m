@@ -44,7 +44,7 @@
 {
     if (indexPath.section == 0 && indexPath.row == 3) {
     // this cell is no longer the reflow mode cell so we should return what would normally be the next cell (cell row index 4, vertical scrolling)
-    return [super tableView:tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:4 inSection:indexPath.section]];
+        return [super tableView:tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:4 inSection:indexPath.section]];
     }
     return [super tableView:tableView cellForRowAtIndexPath:indexPath];
 }
