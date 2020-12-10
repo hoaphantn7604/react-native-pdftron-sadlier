@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -188,6 +187,9 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     private String mCurrentUserName;
     // quick menu
     private ReadableArray mAnnotMenuItems;
+
+    private boolean mShowCustomizeTool = false;
+    private boolean mShouldHandleKeyboard = false;
     private final ToolManager.QuickMenuListener mQuickMenuListener = new ToolManager.QuickMenuListener() {
         @Override
         public boolean onQuickMenuClicked(QuickMenuItem quickMenuItem) {
@@ -222,8 +224,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
 
         }
     };
-    private boolean mShowCustomizeTool = false;
-    private boolean mShouldHandleKeyboard = false;
+
     private final ViewTreeObserver.OnGlobalLayoutListener mOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
@@ -289,7 +290,14 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
 
     @Override
     public boolean onToolbarCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.d(TAG, "onToolbarCreateOptionsMenu: sau");
         inflater.inflate(R.menu.custom_toolbar_menu, menu);
+
+        // handle show customize tools
+        MenuItem menuBookmark = menu.findItem(R.id.action_bookmark);
+        if(menuBookmark != null){
+            menuBookmark.setVisible(this.mShowCustomizeTool);
+        }
         return true;
     }
 
@@ -1242,5 +1250,6 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
 
     public void showCustomizeTool(boolean showCustomizeTool) {
         this.mShowCustomizeTool = showCustomizeTool;
+        Log.d(TAG, "showCustomizeTool: truoc");
     }
 }

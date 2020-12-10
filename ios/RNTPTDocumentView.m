@@ -215,7 +215,9 @@ NS_ASSUME_NONNULL_END
 
 - (IBAction)didPressAddBookmark:(id)sender
 {
-   
+    PTPDFViewCtrl *pdfViewCtrl = self.documentViewController.pdfViewCtrl;
+    PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+    
 }
 
 - (void)unloadDocumentViewController
@@ -1084,6 +1086,7 @@ NS_ASSUME_NONNULL_END
                                                 @(PTAnnotBarButtonPolygon),
                                                 @(PTAnnotBarButtonCloud),
                                                 @(PTAnnotBarButtonPolyline),
+                                                @(PTAnnotBarButtonPan),
                                                 @(PTAnnotBarButtonClose),];
         
 

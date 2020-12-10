@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment {
     private final String TAG = "ahihi-" + CustomPdfViewCtrlTabHostFragment.class.getSimpleName();
     protected ImageButton mBtnBookmark;
-    protected MenuItem mMenuBookmark;
     protected boolean mShowCustomizeTool = false;
 
     @Nullable
@@ -55,28 +53,8 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
                 }
             }
         });
-
-        Activity activity = this.getActivity();
-        if (activity != null) {
-            this.onCreateOptionsMenu(this.mToolbar.getMenu(), new MenuInflater(activity));
-        }
-
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    protected void initOptionsMenu(Menu menu) {
-        super.initOptionsMenu(menu);
-        Activity activity = this.getActivity();
-        if (activity != null && this.mShowCustomizeTool) {
-            this.mMenuBookmark = menu.getItem(0);
-            this.mMenuBookmark.setVisible(this.mShowCustomizeTool);
-        }
-    }
 
     @Override
     protected ArrayList<DialogFragmentTab> getBookmarksDialogTabs() {
