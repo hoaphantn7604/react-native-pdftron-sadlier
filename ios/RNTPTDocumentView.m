@@ -1076,22 +1076,49 @@ NS_ASSUME_NONNULL_END
         
       
        
-        
-        self.documentViewController.annotationToolbar.precedenceArray = @[
-                                             @(PTAnnotBarButtonStickynote),
-                                                @(PTAnnotBarButtonFreehand),
-                                                @(PTAnnotBarButtonEraser),
-                                                @(PTAnnotBarButtonFreetext),
-                                                @(PTAnnotBarButtonArrow),
-                                                @(PTAnnotBarButtonLine),
-                                                @(PTAnnotBarButtonRectangle),
-                                                @(PTAnnotBarButtonEllipse),
-                                                @(PTAnnotBarButtonPolygon),
-                                                @(PTAnnotBarButtonCloud),
-                                                @(PTAnnotBarButtonPolyline),
-                                                @(PTAnnotBarButtonPan),
-                                                @(PTAnnotBarButtonClose),];
-        
+        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
+            self.documentViewController.annotationToolbar.precedenceArray = @[
+                                                 @(PTAnnotBarButtonStickynote),
+                                                    @(PTAnnotBarButtonFreehand),
+                                                    @(PTAnnotBarButtonEraser),
+                                                    @(PTAnnotBarButtonFreetext),
+                                                    @(PTAnnotBarButtonArrow),
+                                                    @(PTAnnotBarButtonLine),
+                                                    @(PTAnnotBarButtonRectangle),
+                                                    @(PTAnnotBarButtonEllipse),
+                                                    @(PTAnnotBarButtonPolygon),
+                                                    @(PTAnnotBarButtonCloud),
+                                                    @(PTAnnotBarButtonPolyline),
+                                                    @(PTAnnotBarButtonPan),
+                                                    @(PTAnnotBarButtonClose),];
+        } else {
+           if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation))
+            {
+                self.documentViewController.annotationToolbar.precedenceArray = @[
+                @(PTAnnotBarButtonStickynote),
+                   @(PTAnnotBarButtonFreehand),
+                   @(PTAnnotBarButtonEraser),
+                   @(PTAnnotBarButtonFreetext),
+                   @(PTAnnotBarButtonArrow),
+                   @(PTAnnotBarButtonPan),
+                   @(PTAnnotBarButtonClose),];
+            } else {
+                self.documentViewController.annotationToolbar.precedenceArray = @[
+                @(PTAnnotBarButtonStickynote),
+                   @(PTAnnotBarButtonFreehand),
+                   @(PTAnnotBarButtonEraser),
+                   @(PTAnnotBarButtonFreetext),
+                   @(PTAnnotBarButtonArrow),
+                   @(PTAnnotBarButtonLine),
+                   @(PTAnnotBarButtonRectangle),
+                   @(PTAnnotBarButtonEllipse),
+                   @(PTAnnotBarButtonPolygon),
+                   @(PTAnnotBarButtonCloud),
+                   @(PTAnnotBarButtonPolyline),
+                   @(PTAnnotBarButtonPan),
+                   @(PTAnnotBarButtonClose),];
+            }
+        }
 
     }
 }
