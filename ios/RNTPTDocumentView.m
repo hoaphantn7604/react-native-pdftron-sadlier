@@ -1087,8 +1087,8 @@ NS_ASSUME_NONNULL_END
                                                     @(PTAnnotBarButtonRectangle),
                                                     @(PTAnnotBarButtonEllipse),
                                                     @(PTAnnotBarButtonPolygon),
-                                                    @(PTAnnotBarButtonCloud),
                                                     @(PTAnnotBarButtonPolyline),
+                                                    @(PTAnnotBarButtonFreehandHighlight),
                                                     @(PTAnnotBarButtonPan),
                                                     @(PTAnnotBarButtonClose),];
         } else {
@@ -1113,8 +1113,8 @@ NS_ASSUME_NONNULL_END
                    @(PTAnnotBarButtonRectangle),
                    @(PTAnnotBarButtonEllipse),
                    @(PTAnnotBarButtonPolygon),
-                   @(PTAnnotBarButtonCloud),
                    @(PTAnnotBarButtonPolyline),
+                   @(PTAnnotBarButtonFreehandHighlight),
                    @(PTAnnotBarButtonPan),
                    @(PTAnnotBarButtonClose),];
             }
