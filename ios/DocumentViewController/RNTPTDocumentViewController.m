@@ -34,34 +34,38 @@ NS_ASSUME_NONNULL_END
 
 - (void)openCustomContentViewController
 {
-    // Initialize a new navigation lists view controller.
-    PTNavigationListsViewController* navigationListsViewController = [[PTNavigationListsViewController alloc] initWithToolManager:self.toolManager];
+    @try {
+        // Initialize a new navigation lists view controller.
+        PTNavigationListsViewController* navigationListsViewController = [[PTNavigationListsViewController alloc] initWithToolManager:self.toolManager];
 
-    // Initialize an annotation, outline, and bookmark view controller with a PTPDFViewCtrl instance.
-    PTAnnotationViewController* annotationViewController = [[PTAnnotationViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-    annotationViewController.delegate = self;
-    
-    PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-    if (@available(iOS 13.0, *)) {
-        thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
-    } else {
-        // Fallback on earlier versions
+        // Initialize an annotation, outline, and bookmark view controller with a PTPDFViewCtrl instance.
+        PTAnnotationViewController* annotationViewController = [[PTAnnotationViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+        annotationViewController.delegate = self;
+        
+        PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+        if (@available(iOS 13.0, *)) {
+            thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
+        } else {
+            // Fallback on earlier versions
+        }
+
+        PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+        outlineViewController.delegate = self;
+        outlineViewController.title = @"Table of content";
+
+        PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+        bookmarkViewController.delegate = self;
+
+        // Set the array of child view controllers to display.
+        navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
+
+        navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+        
+        [self presentViewController:navigationListsViewController animated:YES completion:nil];
     }
-    
-
-    PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-    outlineViewController.delegate = self;
-    outlineViewController.title = @"Table of content";
-
-    PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-    bookmarkViewController.delegate = self;
-
-    // Set the array of child view controllers to display.
-    navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
-
-    navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-    
-    [self presentViewController:navigationListsViewController animated:YES completion:nil];
+    @catch (NSException *exception) {
+       return;
+    }
 }
 
 - (void)openDocumentWithURL:(NSURL *)url password:(NSString *)password

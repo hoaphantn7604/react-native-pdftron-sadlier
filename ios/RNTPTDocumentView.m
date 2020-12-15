@@ -152,7 +152,6 @@ NS_ASSUME_NONNULL_END
         
     }
     
-    // Apply customeze tool
     [self applyCustomizeTool];
     
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:self.documentViewController];
@@ -215,12 +214,38 @@ NS_ASSUME_NONNULL_END
 
 - (IBAction)didPressAddBookmark:(id)sender
 {
-    PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
-    PTPDFDoc *doc = [pdfViewCtrl GetDoc];
-    PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage] pageNumber:self.pdfViewCtrl.currentPage];
-    
-    PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
-    [manager addBookmark:userBookmark forDoc:doc];
+    @try {
+        PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+        PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+        PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage] pageNumber:self.pdfViewCtrl.currentPage];
+         
+        PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
+         [manager addBookmark:userBookmark forDoc:doc];
+        [self bookmarkIcon];
+    }
+    @catch (NSException *exception) {
+       return;
+    }
+}
+
+- (IBAction)didPressRemoveBookmark:(id)sender
+{
+    @try {
+        PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+        PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+        PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
+        PTBookmark *rootBookmark = [manager rootPDFBookmarkForDoc:doc create:YES];
+        PTBookmark *delete = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
+         
+        if ([delete IsValid])
+        {
+            [delete Delete];
+        }
+        [self bookmarkIcon];
+    }
+    @catch (NSException *exception) {
+      return;
+    }
 }
 
 - (void)unloadDocumentViewController
@@ -1056,70 +1081,112 @@ NS_ASSUME_NONNULL_END
     
 }
 
+- (void)applyCustomizeLeftTools{
+    // Custom navigation tool bar icon
+    NSMutableArray* leftItems = [self.documentViewController.navigationItem.leftBarButtonItems mutableCopy];
+    UIBarButtonItem* navigationToolbar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navigation-toolbar"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressNavigationToolbar:)];
+      [leftItems addObject:navigationToolbar];
+      self.documentViewController.navigationItem.leftBarButtonItems = [leftItems copy];
+}
+
+- (void)bookmarkIcon
+{
+    PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+    PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+    PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
+    PTBookmark *rootBookmark = [manager rootPDFBookmarkForDoc:doc create:YES];
+    PTBookmark *bookmark = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
+       
+    NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
+    
+    UIBarButtonItem* bookmarkRemove = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-active"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressRemoveBookmark:)];
+    
+    UIBarButtonItem* bookmarkAdd = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-inactive"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
+    
+    if ([bookmark IsValid])
+    {
+        if ([rightItems count] == 4)
+        {
+            [rightItems replaceObjectAtIndex:3 withObject:bookmarkRemove];
+        }
+        else {
+            [rightItems addObject:bookmarkRemove];
+        }
+    } else {
+        if ([rightItems count] == 4){
+            [rightItems replaceObjectAtIndex:3 withObject:bookmarkAdd];
+        }
+        else {
+            [rightItems addObject:bookmarkAdd];
+        }
+    }
+    
+    self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
+}
+
+- (void)applyCustomizeRightTools {
+    if ( UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPad )
+    {
+        NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
+        [rightItems addObject:self.documentViewController.searchButtonItem];
+        self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
+    }
+    [self bookmarkIcon];
+}
+
+
+- (void)applyCutomizeAnnotationTools {
+    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
+        self.documentViewController.annotationToolbar.precedenceArray = @[
+                                             @(PTAnnotBarButtonStickynote),
+                                                @(PTAnnotBarButtonFreehand),
+                                                @(PTAnnotBarButtonEraser),
+                                                @(PTAnnotBarButtonFreetext),
+                                                @(PTAnnotBarButtonArrow),
+                                                @(PTAnnotBarButtonLine),
+                                                @(PTAnnotBarButtonRectangle),
+                                                @(PTAnnotBarButtonEllipse),
+                                                @(PTAnnotBarButtonPolygon),
+                                                @(PTAnnotBarButtonPolyline),
+                                                @(PTAnnotBarButtonFreehandHighlight),
+                                                @(PTAnnotBarButtonPan),
+                                                @(PTAnnotBarButtonClose),];
+    } else {
+       if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation))
+        {
+            self.documentViewController.annotationToolbar.precedenceArray = @[
+            @(PTAnnotBarButtonStickynote),
+               @(PTAnnotBarButtonFreehand),
+               @(PTAnnotBarButtonEraser),
+               @(PTAnnotBarButtonFreetext),
+               @(PTAnnotBarButtonArrow),
+               @(PTAnnotBarButtonPan),
+               @(PTAnnotBarButtonClose),];
+        } else {
+            self.documentViewController.annotationToolbar.precedenceArray = @[
+            @(PTAnnotBarButtonStickynote),
+               @(PTAnnotBarButtonFreehand),
+               @(PTAnnotBarButtonEraser),
+               @(PTAnnotBarButtonFreetext),
+               @(PTAnnotBarButtonArrow),
+               @(PTAnnotBarButtonLine),
+               @(PTAnnotBarButtonRectangle),
+               @(PTAnnotBarButtonEllipse),
+               @(PTAnnotBarButtonPolygon),
+               @(PTAnnotBarButtonPolyline),
+               @(PTAnnotBarButtonFreehandHighlight),
+               @(PTAnnotBarButtonPan),
+               @(PTAnnotBarButtonClose),];
+        }
+    }
+}
+
 - (void)applyCustomizeTool
 {
     if(self.showCustomizeTool) {
-        if ( UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPad )
-        {
-           NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
-                 [rightItems addObject:self.documentViewController.searchButtonItem];
-                 self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
-        }
-      
-        // Custom navigation tool bar icon
-        UIBarButtonItem* navigationToolbar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navigation-toolbar"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressNavigationToolbar:)];
-        self.documentViewController.navigationItem.leftBarButtonItems = [self.documentViewController.navigationItem.leftBarButtonItems arrayByAddingObject:navigationToolbar];
-       
-        // Custom add bookmark tool bar icon
-        UIBarButtonItem* bookmark = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"add-bookmark"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
-        self.documentViewController.navigationItem.rightBarButtonItems = [self.documentViewController.navigationItem.rightBarButtonItems arrayByAddingObject:bookmark];
-        
-      
-       
-        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
-            self.documentViewController.annotationToolbar.precedenceArray = @[
-                                                 @(PTAnnotBarButtonStickynote),
-                                                    @(PTAnnotBarButtonFreehand),
-                                                    @(PTAnnotBarButtonEraser),
-                                                    @(PTAnnotBarButtonFreetext),
-                                                    @(PTAnnotBarButtonArrow),
-                                                    @(PTAnnotBarButtonLine),
-                                                    @(PTAnnotBarButtonRectangle),
-                                                    @(PTAnnotBarButtonEllipse),
-                                                    @(PTAnnotBarButtonPolygon),
-                                                    @(PTAnnotBarButtonPolyline),
-                                                    @(PTAnnotBarButtonFreehandHighlight),
-                                                    @(PTAnnotBarButtonPan),
-                                                    @(PTAnnotBarButtonClose),];
-        } else {
-           if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation))
-            {
-                self.documentViewController.annotationToolbar.precedenceArray = @[
-                @(PTAnnotBarButtonStickynote),
-                   @(PTAnnotBarButtonFreehand),
-                   @(PTAnnotBarButtonEraser),
-                   @(PTAnnotBarButtonFreetext),
-                   @(PTAnnotBarButtonArrow),
-                   @(PTAnnotBarButtonPan),
-                   @(PTAnnotBarButtonClose),];
-            } else {
-                self.documentViewController.annotationToolbar.precedenceArray = @[
-                @(PTAnnotBarButtonStickynote),
-                   @(PTAnnotBarButtonFreehand),
-                   @(PTAnnotBarButtonEraser),
-                   @(PTAnnotBarButtonFreetext),
-                   @(PTAnnotBarButtonArrow),
-                   @(PTAnnotBarButtonLine),
-                   @(PTAnnotBarButtonRectangle),
-                   @(PTAnnotBarButtonEllipse),
-                   @(PTAnnotBarButtonPolygon),
-                   @(PTAnnotBarButtonPolyline),
-                   @(PTAnnotBarButtonFreehandHighlight),
-                   @(PTAnnotBarButtonPan),
-                   @(PTAnnotBarButtonClose),];
-            }
-        }
-
+        [self applyCustomizeLeftTools];
+        [self applyCustomizeRightTools];
+        [self applyCutomizeAnnotationTools];
     }
 }
 
@@ -1324,6 +1391,9 @@ NS_ASSUME_NONNULL_END
     }
     
     [self applyColorMode];
+    
+    // Apply bookmark icon
+    [self bookmarkIcon];
 }
 
 - (void)rnt_documentViewControllerDidZoom:(PTDocumentViewController *)documentViewController
@@ -1463,6 +1533,9 @@ NS_ASSUME_NONNULL_END
     if ([self.delegate respondsToSelector:@selector(pageChanged:previousPageNumber:)]) {
         [self.delegate pageChanged:self previousPageNumber:previousPageNumber];
     }
+    
+    // Apply bookmark icon
+    [self bookmarkIcon];
 }
 
 - (void)toolManagerDidAddAnnotationWithNotification:(NSNotification *)notification
