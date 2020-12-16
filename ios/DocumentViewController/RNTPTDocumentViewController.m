@@ -48,6 +48,7 @@ NS_ASSUME_NONNULL_END
         } else {
             // Fallback on earlier versions
         }
+        
 
         PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         outlineViewController.delegate = self;

@@ -152,8 +152,6 @@ NS_ASSUME_NONNULL_END
         
     }
     
-    [self applyCustomizeTool];
-    
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:self.documentViewController];
     
     const BOOL translucent = self.documentViewController.hidesControlsOnTap;
@@ -205,6 +203,17 @@ NS_ASSUME_NONNULL_END
           [PTOverrides overrideClass:[PTDocumentViewSettingsController class] withClass:[CPTDocumentViewSettingsController class]];
         [self applyLayoutMode];
     }
+    
+//    apply customize tools
+    [self applyCustomizeTool];
+    if(self.showCustomizeTool) {
+        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+               [[NSNotificationCenter defaultCenter]
+                  addObserver:self selector:@selector(orientationChanged:)
+                  name:UIDeviceOrientationDidChangeNotification
+                  object:[UIDevice currentDevice]];
+    }
+           
 }
 
 - (IBAction)didPressNavigationToolbar:(id)sender
@@ -1091,47 +1100,55 @@ NS_ASSUME_NONNULL_END
 
 - (void)bookmarkIcon
 {
-    PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
-    PTPDFDoc *doc = [pdfViewCtrl GetDoc];
-    PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
-    PTBookmark *rootBookmark = [manager rootPDFBookmarkForDoc:doc create:YES];
-    PTBookmark *bookmark = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
+    if(self.showCustomizeTool) {
+       PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+       PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+       PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
+       PTBookmark *rootBookmark = [manager rootPDFBookmarkForDoc:doc create:YES];
+       PTBookmark *bookmark = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
+          
+       NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
        
-    NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
-    
-    UIBarButtonItem* bookmarkRemove = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-active"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressRemoveBookmark:)];
-    
-    UIBarButtonItem* bookmarkAdd = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-inactive"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
-    
-    if ([bookmark IsValid])
-    {
-        if ([rightItems count] == 4)
-        {
-            [rightItems replaceObjectAtIndex:3 withObject:bookmarkRemove];
-        }
-        else {
-            [rightItems addObject:bookmarkRemove];
-        }
-    } else {
-        if ([rightItems count] == 4){
-            [rightItems replaceObjectAtIndex:3 withObject:bookmarkAdd];
-        }
-        else {
-            [rightItems addObject:bookmarkAdd];
-        }
+       UIBarButtonItem* bookmarkRemove = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-active"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressRemoveBookmark:)];
+       
+       UIBarButtonItem* bookmarkAdd = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-inactive"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
+       
+       if ([bookmark IsValid])
+       {
+           if ([rightItems count] == 4)
+           {
+               [rightItems replaceObjectAtIndex:3 withObject:bookmarkRemove];
+           }
+           else {
+               [rightItems addObject:bookmarkRemove];
+           }
+       } else {
+           if ([rightItems count] == 4){
+               [rightItems replaceObjectAtIndex:3 withObject:bookmarkAdd];
+           }
+           else {
+               [rightItems addObject:bookmarkAdd];
+           }
+       }
+       
+       self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
     }
-    
-    self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
 }
 
 - (void)applyCustomizeRightTools {
     if ( UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPad )
     {
         NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
-        [rightItems addObject:self.documentViewController.searchButtonItem];
+        if ([rightItems count] == 3)
+        {
+            [rightItems replaceObjectAtIndex:2 withObject:self.documentViewController.searchButtonItem];
+        }
+        else {
+            [rightItems addObject:self.documentViewController.searchButtonItem];
+        }
         self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
+        [self bookmarkIcon];
     }
-    [self bookmarkIcon];
 }
 
 
@@ -1179,6 +1196,14 @@ NS_ASSUME_NONNULL_END
                @(PTAnnotBarButtonClose),];
         }
     }
+}
+
+- (void) orientationChanged:(NSNotification *)note
+{
+    // Disable UI elements.
+    [self disableElementsInternal:self.disabledElements];
+    [self applyCustomizeRightTools];
+    [self applyCutomizeAnnotationTools];
 }
 
 - (void)applyCustomizeTool
