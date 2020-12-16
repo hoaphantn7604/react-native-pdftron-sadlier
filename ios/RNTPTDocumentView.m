@@ -1179,7 +1179,10 @@ NS_ASSUME_NONNULL_END
                @(PTAnnotBarButtonArrow),
                @(PTAnnotBarButtonPan),
                @(PTAnnotBarButtonClose),];
-        } else {
+        }
+       
+       if(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
+       {
             self.documentViewController.annotationToolbar.precedenceArray = @[
             @(PTAnnotBarButtonStickynote),
                @(PTAnnotBarButtonFreehand),
@@ -1200,10 +1203,14 @@ NS_ASSUME_NONNULL_END
 
 - (void) orientationChanged:(NSNotification *)note
 {
-    // Disable UI elements.
-    [self disableElementsInternal:self.disabledElements];
-    [self applyCustomizeRightTools];
-    [self applyCutomizeAnnotationTools];
+    UIDevice * device = note.object;
+    if(UIDeviceOrientationIsPortrait(device.orientation) || UIDeviceOrientationIsLandscape(device.orientation))
+    {
+        // Disable UI elements.
+        [self disableElementsInternal:self.disabledElements];
+        [self applyCustomizeRightTools];
+        [self applyCutomizeAnnotationTools];
+    }
 }
 
 - (void)applyCustomizeTool
