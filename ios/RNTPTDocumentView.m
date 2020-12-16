@@ -1115,7 +1115,7 @@ NS_ASSUME_NONNULL_END
        
        if ([bookmark IsValid])
        {
-           if ([rightItems count] == 4)
+           if ([rightItems count] > 3)
            {
                [rightItems replaceObjectAtIndex:3 withObject:bookmarkRemove];
            }
@@ -1123,7 +1123,7 @@ NS_ASSUME_NONNULL_END
                [rightItems addObject:bookmarkRemove];
            }
        } else {
-           if ([rightItems count] == 4){
+           if ([rightItems count] > 3){
                [rightItems replaceObjectAtIndex:3 withObject:bookmarkAdd];
            }
            else {
@@ -1139,7 +1139,7 @@ NS_ASSUME_NONNULL_END
     if ( UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPad )
     {
         NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
-        if ([rightItems count] == 3)
+        if ([rightItems count] > 2)
         {
             [rightItems replaceObjectAtIndex:2 withObject:self.documentViewController.searchButtonItem];
         }
