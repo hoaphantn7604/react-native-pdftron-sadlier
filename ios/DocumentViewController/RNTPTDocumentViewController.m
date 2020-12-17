@@ -43,11 +43,9 @@ NS_ASSUME_NONNULL_END
         annotationViewController.delegate = self;
         
         PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-        if (@available(iOS 13.0, *)) {
-            thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
-        } else {
-            // Fallback on earlier versions
-        }
+        
+        thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
+       
 
         PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         outlineViewController.delegate = self;
@@ -55,7 +53,7 @@ NS_ASSUME_NONNULL_END
 
         PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         bookmarkViewController.delegate = self;
-
+        
         // Set the array of child view controllers to display.
         navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
 
@@ -64,6 +62,7 @@ NS_ASSUME_NONNULL_END
         [self presentViewController:navigationListsViewController animated:YES completion:nil];
     }
     @catch (NSException *exception) {
+        NSLog(@"error: %@", exception);
        return;
     }
 }

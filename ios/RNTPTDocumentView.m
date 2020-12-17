@@ -229,7 +229,7 @@ NS_ASSUME_NONNULL_END
         PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage] pageNumber:self.pdfViewCtrl.currentPage];
          
         PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
-         [manager addBookmark:userBookmark forDoc:doc];
+        [manager addBookmark:userBookmark forDoc:doc];
         [self bookmarkIcon];
     }
     @catch (NSException *exception) {
