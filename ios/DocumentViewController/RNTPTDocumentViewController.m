@@ -41,19 +41,23 @@ NS_ASSUME_NONNULL_END
         // Initialize an annotation, outline, and bookmark view controller with a PTPDFViewCtrl instance.
         PTAnnotationViewController* annotationViewController = [[PTAnnotationViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         annotationViewController.delegate = self;
+        annotationViewController.view.translatesAutoresizingMaskIntoConstraints = NO;
         
         PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         
         thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
-       
+        thumbnailsViewController.view.translatesAutoresizingMaskIntoConstraints = NO;
+
 
         PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         outlineViewController.delegate = self;
         outlineViewController.title = @"Table of content";
-
+        outlineViewController.view.translatesAutoresizingMaskIntoConstraints = NO;
+        
         PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         bookmarkViewController.delegate = self;
-        
+        bookmarkViewController.view.translatesAutoresizingMaskIntoConstraints = NO;
+
         // Set the array of child view controllers to display.
         navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
 
