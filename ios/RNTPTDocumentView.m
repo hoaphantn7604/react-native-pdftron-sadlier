@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly, nullable) PTPDFViewCtrl *pdfViewCtrl;
 @property (nonatomic, readonly, nullable) PTToolManager *toolManager;
-
+@property (nonatomic, readonly, nullable) PTBookmarkManager *bookmarkManager;
 @property (nonatomic, readonly, nullable) RNTPTDocumentViewController *rnt_documentViewController;
 
 @property (nonatomic, readonly, nullable) RNTPTCollaborationDocumentViewController *rnt_collabDocumentViewController;
@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_END
     
     _pageChangeOnTap = NO;
     _thumbnailViewEditingEnabled = YES;
+    _bookmarkManager = [PTBookmarkManager defaultManager];
 }
 
 -(instancetype)initWithFrame:(CGRect)frame
@@ -228,8 +229,7 @@ NS_ASSUME_NONNULL_END
         PTPDFDoc *doc = [pdfViewCtrl GetDoc];
         PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage] pageNumber:self.pdfViewCtrl.currentPage];
          
-        PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
-        [manager addBookmark:userBookmark forDoc:doc];
+        [_bookmarkManager addBookmark:userBookmark forDoc:doc];
         [self bookmarkIcon];
     }
     @catch (NSException *exception) {
@@ -242,8 +242,7 @@ NS_ASSUME_NONNULL_END
     @try {
         PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
         PTPDFDoc *doc = [pdfViewCtrl GetDoc];
-        PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
-        PTBookmark *rootBookmark = [manager rootPDFBookmarkForDoc:doc create:YES];
+        PTBookmark *rootBookmark = [_bookmarkManager rootPDFBookmarkForDoc:doc create:YES];
         PTBookmark *delete = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
          
         if ([delete IsValid])
@@ -1103,8 +1102,7 @@ NS_ASSUME_NONNULL_END
     if(self.showCustomizeTool) {
        PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
        PTPDFDoc *doc = [pdfViewCtrl GetDoc];
-       PTBookmarkManager *manager = [PTBookmarkManager defaultManager];
-       PTBookmark *rootBookmark = [manager rootPDFBookmarkForDoc:doc create:YES];
+       PTBookmark *rootBookmark = [_bookmarkManager rootPDFBookmarkForDoc:doc create:YES];
        PTBookmark *bookmark = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
           
        NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
