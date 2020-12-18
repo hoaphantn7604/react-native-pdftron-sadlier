@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface RNTPTDocumentViewController : PTDocumentViewController <PTOutlineViewControllerDelegate, PTBookmarkViewControllerDelegate, PTAnnotationViewControllerDelegate>
+@interface RNTPTDocumentViewController : PTDocumentViewController <PTOutlineViewControllerDelegate, PTBookmarkViewControllerDelegate, PTAnnotationViewControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout>
 
 @property (nonatomic, weak, nullable) id<RNTPTDocumentViewControllerDelegate> delegate;
 
