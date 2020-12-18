@@ -528,6 +528,20 @@ NS_ASSUME_NONNULL_END
             else if ([string isEqualToString:@"AnnotationCreateFileAttachment"]) {
                 self.toolManager.fileAttachmentAnnotationOptions.canCreate = value;
             }
+            else if ([string isEqualToString:@"AnnotationImageStamp"]) {
+                self.toolManager.imageStampAnnotationOptions.canCreate = value;
+            }
+            else if ([string isEqualToString:@"AnnotationRedact"]) {
+                self.toolManager.redactAnnotationOptions.canCreate = value;
+                
+            }
+            else if ([string isEqualToString:@"AnnotationMeasurement"]) {
+                self.toolManager.perimeterAnnotationOptions.canCreate = value;
+                self.toolManager.rulerAnnotationOptions.canCreate = value;
+                self.toolManager.areaAnnotationOptions.canCreate = value;
+                
+            }
+            
         }
     }
 }
