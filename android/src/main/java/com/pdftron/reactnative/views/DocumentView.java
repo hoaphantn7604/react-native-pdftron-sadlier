@@ -49,6 +49,7 @@ import com.pdftron.pdf.config.ViewerConfig;
 import com.pdftron.pdf.controls.PdfViewCtrlTabFragment;
 import com.pdftron.pdf.controls.PdfViewCtrlTabHostFragment;
 import com.pdftron.pdf.dialog.ViewModePickerDialogFragment;
+import com.pdftron.pdf.model.UserBookmarkItem;
 import com.pdftron.pdf.tools.AdvancedShapeCreate;
 import com.pdftron.pdf.tools.FreehandCreate;
 import com.pdftron.pdf.tools.QuickMenu;
@@ -100,6 +101,8 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     private static final String KEY_action_delete = "delete";
     private static final String KEY_annotations = "annotations";
     private static final String KEY_xfdfCommand = "xfdfCommand";
+
+
     // EVENTS END
     private final Runnable mLayoutRunnable = new Runnable() {
         @Override
@@ -111,18 +114,6 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         }
     };
     private final ArrayList<ToolManager.ToolMode> mDisabledTools = new ArrayList<>();
-    private final PDFViewCtrl.PageChangeListener mPageChangeListener = new PDFViewCtrl.PageChangeListener() {
-        @Override
-        public void onPageChange(int old_page, int cur_page, PDFViewCtrl.PageChangeState pageChangeState) {
-            if (old_page != cur_page || pageChangeState == PDFViewCtrl.PageChangeState.END) {
-                WritableMap params = Arguments.createMap();
-                params.putString(ON_PAGE_CHANGED, ON_PAGE_CHANGED);
-                params.putInt(PREV_PAGE_KEY, old_page);
-                params.putInt(PAGE_CURRENT_KEY, cur_page);
-                onReceiveNativeEvent(params);
-            }
-        }
-    };
     private final PDFViewCtrl.OnCanvasSizeChangeListener mOnCanvasSizeChangeListener = new PDFViewCtrl.OnCanvasSizeChangeListener() {
         @Override
         public void onCanvasSizeChanged() {
@@ -187,9 +178,6 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     private String mCurrentUserName;
     // quick menu
     private ReadableArray mAnnotMenuItems;
-
-    private boolean mShowCustomizeTool = false;
-    private boolean mShouldHandleKeyboard = false;
     private final ToolManager.QuickMenuListener mQuickMenuListener = new ToolManager.QuickMenuListener() {
         @Override
         public boolean onQuickMenuClicked(QuickMenuItem quickMenuItem) {
@@ -224,7 +212,8 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
 
         }
     };
-
+    private boolean mShowCustomizeTool = false;
+    private boolean mShouldHandleKeyboard = false;
     private final ViewTreeObserver.OnGlobalLayoutListener mOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
@@ -245,6 +234,22 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                     mShouldHandleKeyboard = false;
                     requestLayout();
                 }
+            }
+        }
+    };
+    private MenuItem menuBookmark;
+    private final PDFViewCtrl.PageChangeListener mPageChangeListener = new PDFViewCtrl.PageChangeListener() {
+        @Override
+        public void onPageChange(int old_page, int cur_page, PDFViewCtrl.PageChangeState pageChangeState) {
+            Log.d(TAG, "onPageChange: " + old_page + ", " + cur_page);
+
+            if (old_page != cur_page || pageChangeState == PDFViewCtrl.PageChangeState.END) {
+                DocumentView.this.refreshBookmarkIconAtPage(cur_page);
+                WritableMap params = Arguments.createMap();
+                params.putString(ON_PAGE_CHANGED, ON_PAGE_CHANGED);
+                params.putInt(PREV_PAGE_KEY, old_page);
+                params.putInt(PAGE_CURRENT_KEY, cur_page);
+                onReceiveNativeEvent(params);
             }
         }
     };
@@ -288,15 +293,46 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 .useSupportActionBar(true);
     }
 
+    private boolean hasBookmarkAtPage(int page) {
+        ArrayList<Integer> pages = BookmarkManager.getPdfBookmarkedPageNumbers(this.getPdfViewCtrl().getDoc());
+        Log.d(TAG, "onPageChange: " + pages);
+        boolean hasBookmark = pages.contains(page);
+        return hasBookmark;
+    }
+
+    private void refreshBookmarkIconAtPage(int page) {
+        boolean hasBookmark = this.hasBookmarkAtPage(page);
+        this.menuBookmark.setIcon(hasBookmark ? R.drawable.bookmark_active : R.drawable.bookmark_inactive);
+    }
+
+    private void removeUserItemBookmarkAt(int pageNumber) {
+        ArrayList<UserBookmarkItem> userBookmarkItems = ((ArrayList<UserBookmarkItem>) BookmarkManager.getPdfBookmarks(BookmarkManager.getRootPdfBookmark(this.getPdfDoc(), false)));
+        int deleteTargetIndex = -1;
+        for (int i = 0; i < userBookmarkItems.size(); i++) {
+            if (userBookmarkItems.get(i).pageNumber == pageNumber) {
+                deleteTargetIndex = i;
+                break;
+            }
+        }
+        if (deleteTargetIndex > -1) {
+            try {
+                userBookmarkItems.get(deleteTargetIndex).pdfBookmark.delete();
+            } catch (PDFNetException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public boolean onToolbarCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         Log.d(TAG, "onToolbarCreateOptionsMenu: sau");
         inflater.inflate(R.menu.custom_toolbar_menu, menu);
 
         // handle show customize tools
-        MenuItem menuBookmark = menu.findItem(R.id.action_bookmark);
-        if(menuBookmark != null){
+        this.menuBookmark = menu.findItem(R.id.action_bookmark);
+        if (menuBookmark != null) {
             menuBookmark.setVisible(this.mShowCustomizeTool);
+
         }
         return true;
     }
@@ -305,10 +341,14 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     public boolean onToolbarOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_bookmark) {
             try {
-                // Toast.makeText(this.getContext(), "Click " + item.getTitle(), Toast.LENGTH_SHORT).show();
                 int pageNumber = this.getPdfViewCtrl().getCurrentPage();
                 long curObjNum = this.getPdfViewCtrl().getDoc().getPage(pageNumber).getSDFObj().getObjNum();
-                BookmarkManager.addPdfBookmark(this.getContext(), this.getPdfViewCtrl(), curObjNum, pageNumber);
+                if (this.hasBookmarkAtPage(pageNumber)) {
+                    this.removeUserItemBookmarkAt(pageNumber);
+                } else {
+                    BookmarkManager.addPdfBookmark(this.getContext(), this.getPdfViewCtrl(), curObjNum, pageNumber);
+                }
+                this.refreshBookmarkIconAtPage(pageNumber);
             } catch (PDFNetException e) {
                 e.printStackTrace();
             }
@@ -653,6 +693,12 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
             mode = ToolManager.ToolMode.FORM_COMBO_BOX_CREATE;
         } else if ("FormCreateListBoxField".equals(item)) {
             mode = ToolManager.ToolMode.FORM_LIST_BOX_CREATE;
+        } else if ("AnnotationRedact".equals(item)) {
+            mode = ToolManager.ToolMode.TEXT_REDACTION;
+        } else if ("AnnotationImageStamp".equals(item)) {
+            mode = ToolManager.ToolMode.STAMPER;
+        } else if ("AnnotationCreateRectAreaMeasurement".equals(item)) {
+           mode = ToolManager.ToolMode.RECT_AREA_MEASURE_CREATE;
         }
         return mode;
     }
