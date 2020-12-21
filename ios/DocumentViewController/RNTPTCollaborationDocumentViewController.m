@@ -43,12 +43,9 @@ NS_ASSUME_NONNULL_END
         annotationViewController.delegate = self;
         
         PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-        if (@available(iOS 13.0, *)) {
-            thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
-        } else {
-            // Fallback on earlier versions
-        }
-        
+        thumbnailsViewController.collectionView.delegate = self;
+        thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
+      
 
         PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         outlineViewController.delegate = self;
@@ -60,12 +57,16 @@ NS_ASSUME_NONNULL_END
         // Set the array of child view controllers to display.
         navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
 
-        navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
+            navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+        }
+        
+        _myNavigationListsViewController = navigationListsViewController;
         
         [self presentViewController:navigationListsViewController animated:YES completion:nil];
     }
     @catch (NSException *exception) {
-       
+       return;
     }
 }
 
@@ -184,5 +185,62 @@ NS_ASSUME_NONNULL_END
 {
     [bookmarkViewController dismissViewControllerAnimated:YES completion:nil];
 }
+
+#pragma mark - PTOutlineViewController's Delegate
+
+- (void)outlineViewController:(PTOutlineViewController *)outlineViewController selectedBookmark:(NSDictionary *)bookmark
+{
+    [outlineViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)bookmarkViewController:(PTBookmarkViewController *)bookmarkViewController selectedBookmark:(NSDictionary *)bookmark
+{
+    [bookmarkViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)annotationViewController:(PTAnnotationViewController *)annotationViewController selectedAnnotaion: (NSDictionary *)anAnnotation
+{
+     [annotationViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - UICollectionViewFlowLayout's Delegate
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout* )collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section
+{
+    return CGSizeZero;
+}
+
+- (CGSize)collectionView:(UICollectionView* )collectionView layout:(UICollectionViewLayout* )collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    int numberOfCells = 6;
+    
+    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
+        numberOfCells = 6;
+    }else{
+        numberOfCells = 3;
+    }
+    
+    float screenWidth = [[UIScreen mainScreen] bounds].size.width;
+    float screenHeight = [[UIScreen mainScreen] bounds].size.height;
+
+    float marginSize  = 10.0f;
+    float itemWidth   = (MIN(screenWidth, screenHeight) - marginSize * 4) / numberOfCells;
+    NSLog(@"CELL SIZE: %f", itemWidth);
+    return CGSizeMake(itemWidth, 150);
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath* )indexPath
+{
+    
+    if (_myNavigationListsViewController != nil) {
+        
+        NSNumber *parseInt = [NSNumber numberWithLong:indexPath.row];
+        
+        [self.pdfViewCtrl SetCurrentPage:parseInt.intValue + 1];
+
+        [_myNavigationListsViewController dismissViewControllerAnimated:true completion:nil];
+    }
+}
+
 
 @end

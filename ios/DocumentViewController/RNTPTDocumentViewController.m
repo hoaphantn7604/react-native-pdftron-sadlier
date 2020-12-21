@@ -47,12 +47,8 @@ NS_ASSUME_NONNULL_END
         
         PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         thumbnailsViewController.collectionView.delegate = self;
-        
-        if (@available(iOS 13.0, *)) {
-            thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
-        } else {
-            // Fallback on earlier versions
-        }
+        thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
+      
 
         PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         outlineViewController.delegate = self;
@@ -64,7 +60,9 @@ NS_ASSUME_NONNULL_END
         // Set the array of child view controllers to display.
         navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
 
-        navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
+            navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+        }
         
         _myNavigationListsViewController = navigationListsViewController;
         
