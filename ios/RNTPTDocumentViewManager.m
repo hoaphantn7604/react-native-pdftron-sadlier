@@ -298,6 +298,16 @@ RCT_CUSTOM_VIEW_PROPERTY(thumbnailViewEditingEnabled, BOOL, RNTPTDocumentView)
     }
 }
 
+- (void)bookmarkChanged:(RNTPTDocumentView *)sender bookmark:(NSString *)bookmark
+{
+    if (sender.onChange) {
+        sender.onChange(@{
+            @"onBookmarkChanged": @"onBookmarkChanged",
+            @"bookmark": bookmark
+        });
+    }
+}
+
 - (void)zoomChanged:(RNTPTDocumentView *)sender zoom:(double)zoom
 {
     if (sender.onChange) {

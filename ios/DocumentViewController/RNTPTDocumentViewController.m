@@ -1,4 +1,5 @@
 #import "RNTPTDocumentViewController.h"
+#import "RNTPTDocumentView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL needsDocumentLoaded;
 @property (nonatomic) BOOL needsRemoteDocumentLoaded;
 @property (nonatomic) BOOL documentLoaded;
+
 
 // My controller
 @property (nonatomic) PTNavigationListsViewController* myNavigationListsViewController;
@@ -201,6 +203,23 @@ NS_ASSUME_NONNULL_END
 {
     [bookmarkViewController dismissViewControllerAnimated:YES completion:nil];
 }
+
+- (void)bookmarkViewController:(PTBookmarkViewController *)bookmarkViewController didAddBookmark:(PTUserBookmark *)bookmark
+{
+    if (self.delegate != nil)
+    {
+        [self.delegate rnt_documentViewControllerDidChange:self];
+    }
+}
+
+- (void)bookmarkViewController:(PTBookmarkViewController *)bookmarkViewController didRemoveBookmark:(PTUserBookmark *)bookmark
+{
+    if (self.delegate != nil)
+    {
+        [self.delegate rnt_documentViewControllerDidChange:self];
+    }
+}
+
 
 - (void)annotationViewController:(PTAnnotationViewController *)annotationViewController selectedAnnotaion: (NSDictionary *)anAnnotation
 {

@@ -230,6 +230,8 @@ NS_ASSUME_NONNULL_END
         PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage] pageNumber:self.pdfViewCtrl.currentPage];
          
         [_bookmarkManager addBookmark:userBookmark forDoc:doc];
+        
+        [self onChangeBookmark];
         [self bookmarkIcon];
     }
     @catch (NSException *exception) {
@@ -249,11 +251,21 @@ NS_ASSUME_NONNULL_END
         {
             [delete Delete];
         }
+        
+        [self onChangeBookmark];
         [self bookmarkIcon];
     }
     @catch (NSException *exception) {
       return;
     }
+}
+
+- (void)onChangeBookmark
+{
+    PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+    PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+    NSString *bookmark = [_bookmarkManager exportBookmarksFromDoc:doc];
+    [self.delegate bookmarkChanged:self bookmark:bookmark];
 }
 
 - (void)unloadDocumentViewController
@@ -1441,6 +1453,12 @@ NS_ASSUME_NONNULL_END
 }
 
 #pragma mark - <RNTPTDocumentViewControllerDelegate>
+
+- (void)rnt_documentViewControllerDidChange:(PTDocumentViewController *)documentViewController
+{
+    [self bookmarkIcon];
+    [self onChangeBookmark];
+}
 
 - (void)rnt_documentViewControllerDocumentLoaded:(PTDocumentViewController *)documentViewController
 {

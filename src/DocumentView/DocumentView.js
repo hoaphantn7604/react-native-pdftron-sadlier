@@ -24,6 +24,7 @@ export default class DocumentView extends PureComponent {
     onDocumentError: PropTypes.func,
     onPageChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
+    onBookmarkChanged: PropTypes.func,
     disabledElements: PropTypes.array,
     disabledTools: PropTypes.array,
     annotationMenuItems: PropTypes.array,
@@ -94,6 +95,10 @@ export default class DocumentView extends PureComponent {
           'xfdfCommand': event.nativeEvent.xfdfCommand,
         });
       }
+    } else if (event.nativeEvent.onBookmarkChanged){
+      this.props.onBookmarkChanged({
+        'bookmark':event.nativeEvent.bookmark
+      });
     }
   }
 

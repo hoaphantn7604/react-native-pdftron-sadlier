@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)rnt_documentViewController:(PTDocumentViewController *)documentViewController filterMenuItemsForAnnotationSelectionMenu:(UIMenuController *)menuController;
 
+- (void)rnt_documentViewControllerDidChange:(PTDocumentViewController *)documentViewController;
+
 @end
 
 @interface RNTPTDocumentViewController : PTDocumentViewController <PTOutlineViewControllerDelegate, PTBookmarkViewControllerDelegate, PTAnnotationViewControllerDelegate, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout>
