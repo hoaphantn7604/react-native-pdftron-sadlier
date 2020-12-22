@@ -199,5 +199,37 @@ RCT_REMAP_METHOD(importAnnotationCommand,
     }
 }
 
+RCT_REMAP_METHOD(exportBookmarks,
+                 exportBookmarkDocumentViewTag:(nonnull NSNumber *)tag
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+     
+        NSString *bookmarks = [[self documentViewManager] exportBookmarksDocumentViewTag:tag];
+        resolve(bookmarks);
+    }
+    @catch (NSException *exception) {
+        reject(@"export_failed", @"Failed to export bookmarks", [self errorFromException:exception]);
+    }
+}
+
+RCT_REMAP_METHOD(importBookmarks,
+                 importBookmarkDocumentViewTag:(nonnull NSNumber *)tag
+                 bookkmark:(NSString *)bookmark
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+     
+        [[self documentViewManager] importBookmarksDocumentViewTag:tag bookmark:bookmark];
+        resolve(nil);
+    }
+    @catch (NSException *exception) {
+        reject(@"export_failed", @"Failed to export bookmarks", [self errorFromException:exception]);
+    }
+}
+
+
 @end
   

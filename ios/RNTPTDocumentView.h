@@ -86,6 +86,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)getPageCount;
 
 - (nullable NSString *)exportAnnotationsWithOptions:(NSDictionary *)options;
+- (nullable NSString *)exportBookmarks;
+- (void)importBookmark: (NSString *)bookmark;
 - (nullable NSString *)toText:(int)number;
 - (void)importAnnotations:(NSString *)xfdfString;
 

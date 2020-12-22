@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_END
     @try {
         // Initialize a new navigation lists view controller.
         PTNavigationListsViewController* navigationListsViewController = [[PTNavigationListsViewController alloc] initWithToolManager:self.toolManager];
-
+        
         // Initialize an annotation, outline, and bookmark view controller with a PTPDFViewCtrl instance.
         PTAnnotationViewController* annotationViewController = [[PTAnnotationViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         annotationViewController.delegate = self;
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_END
         PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         thumbnailsViewController.collectionView.delegate = self;
         thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
-      
+        thumbnailsViewController.editingEnabled = NO;
 
         PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         outlineViewController.delegate = self;
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_END
 
         // Set the array of child view controllers to display.
         navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
-
+        
         if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
             navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
         }
@@ -216,6 +216,9 @@ NS_ASSUME_NONNULL_END
 
 - (CGSize)collectionView:(UICollectionView* )collectionView layout:(UICollectionViewLayout* )collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
+//    PTThumbnailsViewController *vc = _myNavigationListsViewController.listViewControllers[1];
+//    vc.editingEnabled = NO;
+    
     int numberOfCells = 6;
     
     if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){

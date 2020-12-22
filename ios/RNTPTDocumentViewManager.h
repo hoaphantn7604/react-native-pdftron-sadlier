@@ -20,6 +20,8 @@
 - (int)getPageCountForDocumentViewTag:(NSNumber *)tag;
 
 - (NSString *)exportAnnotationsForDocumentViewTag:(NSNumber *)tag options:(NSDictionary *)options;
+- (NSString *)exportBookmarksDocumentViewTag:(NSNumber *)tag;
+- (void)importBookmarksDocumentViewTag:(NSNumber *)tag bookmark:(NSString *) bookmark;
 - (NSString *)toTextForDocumentViewTag:(NSNumber *)tag number:(int)number;
 - (void)importAnnotationsForDocumentViewTag:(NSNumber *)tag xfdf:(NSString *)xfdfString;
 

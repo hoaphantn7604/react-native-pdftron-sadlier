@@ -539,7 +539,6 @@ NS_ASSUME_NONNULL_END
                 self.toolManager.perimeterAnnotationOptions.canCreate = value;
                 self.toolManager.rulerAnnotationOptions.canCreate = value;
                 self.toolManager.areaAnnotationOptions.canCreate = value;
-                
             }
             
         }
@@ -798,6 +797,31 @@ NS_ASSUME_NONNULL_END
         if (shouldUnlock) {
             [pdfViewCtrl DocUnlockRead];
         }
+    }
+}
+
+- (NSString *)exportBookmarks {
+    @try {
+        PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+        PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+        NSString *bookmark = [_bookmarkManager exportBookmarksFromDoc:doc];
+        return bookmark;
+    }
+    @catch (NSException *exception) {
+        return nil;
+    }
+
+}
+
+- (void)importBookmark:(NSString *)bookmark{
+    @try {
+        PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+        PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+        NSLog(@"Bookmark: %@",bookmark);
+        [_bookmarkManager importBookmarksForDoc:doc fromJSONString:bookmark];
+        [self bookmarkIcon];
+    }
+    @catch (NSException *exception) {
     }
 }
 

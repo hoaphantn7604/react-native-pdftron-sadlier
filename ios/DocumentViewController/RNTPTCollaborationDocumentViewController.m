@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL needsRemoteDocumentLoaded;
 @property (nonatomic) BOOL documentLoaded;
 
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -29,44 +30,6 @@ NS_ASSUME_NONNULL_END
         if ([self.delegate respondsToSelector:@selector(rnt_documentViewControllerDocumentLoaded:)]) {
             [self.delegate rnt_documentViewControllerDocumentLoaded:self];
         }
-    }
-}
-
-- (void)openCustomContentViewController
-{
-    @try {
-        // Initialize a new navigation lists view controller.
-        PTNavigationListsViewController* navigationListsViewController = [[PTNavigationListsViewController alloc] initWithToolManager:self.toolManager];
-
-        // Initialize an annotation, outline, and bookmark view controller with a PTPDFViewCtrl instance.
-        PTAnnotationViewController* annotationViewController = [[PTAnnotationViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-        annotationViewController.delegate = self;
-        
-        PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-        thumbnailsViewController.collectionView.delegate = self;
-        thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
-      
-
-        PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-        outlineViewController.delegate = self;
-        outlineViewController.title = @"Table of content";
-
-        PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
-        bookmarkViewController.delegate = self;
-
-        // Set the array of child view controllers to display.
-        navigationListsViewController.listViewControllers = @[outlineViewController, thumbnailsViewController, annotationViewController, bookmarkViewController];
-
-        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
-            navigationListsViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-        }
-        
-        _myNavigationListsViewController = navigationListsViewController;
-        
-        [self presentViewController:navigationListsViewController animated:YES completion:nil];
-    }
-    @catch (NSException *exception) {
-       return;
     }
 }
 
@@ -202,45 +165,5 @@ NS_ASSUME_NONNULL_END
 {
      [annotationViewController dismissViewControllerAnimated:YES completion:nil];
 }
-
-#pragma mark - UICollectionViewFlowLayout's Delegate
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout* )collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section
-{
-    return CGSizeZero;
-}
-
-- (CGSize)collectionView:(UICollectionView* )collectionView layout:(UICollectionViewLayout* )collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    int numberOfCells = 6;
-    
-    if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
-        numberOfCells = 6;
-    }else{
-        numberOfCells = 3;
-    }
-    
-    float screenWidth = [[UIScreen mainScreen] bounds].size.width;
-    float screenHeight = [[UIScreen mainScreen] bounds].size.height;
-
-    float marginSize  = 10.0f;
-    float itemWidth   = (MIN(screenWidth, screenHeight) - marginSize * 4) / numberOfCells;
-    NSLog(@"CELL SIZE: %f", itemWidth);
-    return CGSizeMake(itemWidth, 150);
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath* )indexPath
-{
-    
-    if (_myNavigationListsViewController != nil) {
-        
-        NSNumber *parseInt = [NSNumber numberWithLong:indexPath.row];
-        
-        [self.pdfViewCtrl SetCurrentPage:parseInt.intValue + 1];
-
-        [_myNavigationListsViewController dismissViewControllerAnimated:true completion:nil];
-    }
-}
-
 
 @end

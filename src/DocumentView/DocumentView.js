@@ -49,7 +49,7 @@ export default class DocumentView extends PureComponent {
     showCustomizeTool: PropTypes.bool,
     ...ViewPropTypes,
   };
-  
+
   static defaultProps = {
     showCustomizeTool: false,
   }
@@ -66,14 +66,14 @@ export default class DocumentView extends PureComponent {
     } else if (event.nativeEvent.onPageChanged) {
       if (this.props.onPageChanged) {
         this.props.onPageChanged({
-        	'previousPageNumber': event.nativeEvent.previousPageNumber,
-        	'pageNumber': event.nativeEvent.pageNumber,
+          'previousPageNumber': event.nativeEvent.previousPageNumber,
+          'pageNumber': event.nativeEvent.pageNumber,
         });
       }
     } else if (event.nativeEvent.onZoomChanged) {
       if (this.props.onZoomChanged) {
         this.props.onZoomChanged({
-        	'zoom': event.nativeEvent.zoom,
+          'zoom': event.nativeEvent.zoom,
         });
       }
     } else if (event.nativeEvent.onAnnotationChanged) {
@@ -100,7 +100,7 @@ export default class DocumentView extends PureComponent {
   setToolMode = (toolMode) => {
     const tag = findNodeHandle(this._viewerRef);
     if (tag != null) {
-    	DocumentViewManager.setToolMode(tag, toolMode);
+      DocumentViewManager.setToolMode(tag, toolMode);
     }
   }
 
@@ -156,6 +156,22 @@ export default class DocumentView extends PureComponent {
     return Promise.resolve();
   }
 
+  exportBookmark = () => {
+    const tag = findNodeHandle(this._viewerRef);
+    if (tag != null) {
+      return DocumentViewManager.exportBookmarks(tag);
+    }
+    return Promise.resolve();
+  }
+
+  importBookmark = (bookmark) => {
+    const tag = findNodeHandle(this._viewerRef);
+    if (tag != null) {
+      return DocumentViewManager.importBookmarks(tag, bookmark);
+    }
+    return Promise.resolve();
+  }
+
   flattenAnnotations = (formsOnly) => {
     const tag = findNodeHandle(this._viewerRef);
     if (tag != null) {
@@ -174,7 +190,7 @@ export default class DocumentView extends PureComponent {
 
   setFlagForFields = (fields, flag, value) => {
     const tag = findNodeHandle(this._viewerRef);
-    if(tag != null) {
+    if (tag != null) {
       return DocumentViewManager.setFlagForFields(tag, fields, flag, value);
     }
     return Promise.resolve();
@@ -182,7 +198,7 @@ export default class DocumentView extends PureComponent {
 
   setValueForFields = (fieldsMap) => {
     const tag = findNodeHandle(this._viewerRef);
-    if(tag != null) {
+    if (tag != null) {
       return DocumentViewManager.setValueForFields(tag, fieldsMap);
     }
     return Promise.resolve();
@@ -196,7 +212,7 @@ export default class DocumentView extends PureComponent {
     return (
       <RCTDocumentView
         ref={this._setNativeRef}
-        style={{ flex:1 }}
+        style={{ flex: 1 }}
         onChange={this.onChange}
         {...this.props}
       />
