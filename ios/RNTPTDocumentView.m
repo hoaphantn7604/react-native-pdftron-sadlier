@@ -205,7 +205,7 @@ NS_ASSUME_NONNULL_END
         [self applyLayoutMode];
     }
     
-//    apply customize tools
+    // apply customize tools
     [self applyCustomizeTool];
     if(self.showCustomizeTool) {
         [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -214,7 +214,6 @@ NS_ASSUME_NONNULL_END
                   name:UIDeviceOrientationDidChangeNotification
                   object:[UIDevice currentDevice]];
     }
-           
 }
 
 - (IBAction)didPressNavigationToolbar:(id)sender
@@ -233,6 +232,7 @@ NS_ASSUME_NONNULL_END
         
         [self onChangeBookmark];
         [self bookmarkIcon];
+//        [self mappingPageLabel];
     }
     @catch (NSException *exception) {
        return;
@@ -829,12 +829,18 @@ NS_ASSUME_NONNULL_END
     @try {
         PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
         PTPDFDoc *doc = [pdfViewCtrl GetDoc];
-        NSLog(@"Bookmark: %@",bookmark);
+        [_bookmarkManager removeRootPDFBookmarkForDoc:doc];
         [_bookmarkManager importBookmarksForDoc:doc fromJSONString:bookmark];
         [self bookmarkIcon];
     }
     @catch (NSException *exception) {
     }
+}
+
+- (void)mappingPageLabel
+{
+    PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+    PTPDFDoc *doc = [pdfViewCtrl GetDoc];
 }
 
 #pragma mark - Flatten annotations

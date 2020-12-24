@@ -52,6 +52,8 @@ NS_ASSUME_NONNULL_END
         thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
         thumbnailsViewController.editingEnabled = NO;
 
+       
+
         PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
         outlineViewController.delegate = self;
         outlineViewController.title = @"Table of content";
