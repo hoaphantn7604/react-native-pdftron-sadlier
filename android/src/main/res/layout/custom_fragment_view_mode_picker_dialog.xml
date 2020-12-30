@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:id="@+id/viewMode_scrollView" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/scroll_layout">
+
+            <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
+                android:paddingTop="10dp"
+                android:paddingRight="10dp"
+                android:paddingEnd="10dp"
+                android:gravity="bottom"
+                android:textSize="@dimen/primary_text_size"
+                android:textColor="?attr/colorAccent"
+                android:text="@string/pref_viewmode_title"/>
+
+            <LinearLayout
+                android:id="@+id/fragment_view_mode_button_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
+                android:paddingRight="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp">
+
+                <TableLayout
+                    android:id="@+id/fragment_view_mode_button_table_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginBottom="3dp">
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
+                            android:contentDescription="@string/pref_viewmode_singlepage"
+                            android:id="@+id/fragment_view_mode_button_single"
+                            android:layout_marginRight="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:paddingRight="10dp"
+                            android:paddingEnd="10dp">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:srcCompat="@drawable/ic_view_mode_single_black_24dp"
+                                android:padding="10dp"
+                                android:scaleType="fitCenter"/>
+
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="match_parent"
+                                android:text="@string/pref_viewmode_singlepage_short"
+                                android:gravity="start|center_vertical"
+                                android:textColor="?android:attr/textColorPrimary"
+                                android:textAlignment="textStart" />
+                        </LinearLayout>
+
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
+                            android:contentDescription="@string/pref_viewmode_facingcover"
+                            android:id="@+id/fragment_view_mode_button_cover"
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginStart="4dp"
+                            android:paddingRight="10dp"
+                            android:paddingEnd="10dp">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginLeft="5dp"
+                                android:layout_marginEnd="5dp"
+                                android:layout_marginRight="5dp"
+                                android:padding="5dp"
+                                android:scaleType="fitCenter"
+                                app:srcCompat="@drawable/ic_cover_facing3x" />
+
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="match_parent"
+                                android:text="Spread View"
+                                android:gravity="start|center_vertical"
+                                android:textColor="?android:attr/textColorPrimary"
+                                android:textAlignment="textStart" />
+                        </LinearLayout>
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        >
+
+                        <LinearLayout
+                            android:visibility="gone"
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
+                            android:contentDescription="@string/pref_viewmode_reflow"
+                            android:id="@+id/fragment_view_mode_button_reflow"
+                            android:layout_marginRight="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:paddingRight="10dp"
+                            android:paddingEnd="10dp">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:padding="10dp"
+                                app:srcCompat="@drawable/ic_view_mode_reflow_black_24dp"
+                                android:scaleType="fitCenter"/>
+
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="match_parent"
+                                android:text="@string/pref_viewmode_reflow_short"
+                                android:gravity="start|center_vertical"
+                                android:textColor="?android:attr/textColorPrimary"
+                                android:textAlignment="textStart" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:visibility="gone"
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
+                            android:contentDescription="@string/pref_viewmode_facing"
+                            android:id="@+id/fragment_view_mode_button_facing"
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginStart="4dp"
+                            android:paddingRight="10dp"
+                            android:paddingEnd="10dp">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:padding="5dp"
+                                android:layout_marginEnd="5dp"
+                                android:layout_marginRight="5dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginLeft="5dp"
+                                app:srcCompat="@drawable/ic_view_mode_facing_black_24dp"
+                                android:scaleType="fitCenter"/>
+
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="match_parent"
+                                android:text="@string/pref_viewmode_facing_short"
+                                android:gravity="start|center_vertical"
+                                android:textColor="?android:attr/textColorPrimary"
+                                android:textAlignment="textStart"
+                                android:singleLine="false" />
+                        </LinearLayout>
+
+                    </TableRow>
+
+                </TableLayout>
+
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/fragment_view_mode_picker_dialog_listview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:choiceMode="multipleChoice"
+                android:minHeight="?attr/listPreferredItemHeight"
+                android:headerDividersEnabled="true"
+                android:scrollbars="none"/>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

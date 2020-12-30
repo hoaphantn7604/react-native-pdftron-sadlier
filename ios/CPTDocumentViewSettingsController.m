@@ -55,7 +55,7 @@
     if (indexPath.section == 0 && indexPath.row == 2) {
         cell.textLabel.text = @"Spread View";
         cell.imageView.image = [UIImage imageNamed:@"cover_facing"];
-        cell.accessoryType = self.settings.pagePresentationMode == 5 ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+        cell.accessoryType = self.settings.pagePresentationMode == 5 || self.settings.pagePresentationMode == 6 ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
         return cell;
     }
     

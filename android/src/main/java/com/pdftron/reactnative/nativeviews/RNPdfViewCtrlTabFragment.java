@@ -3,18 +3,26 @@ package com.pdftron.reactnative.nativeviews;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.PointF;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
+import com.pdftron.pdf.controls.AnnotationToolbar;
 import com.pdftron.pdf.controls.PdfViewCtrlTabFragment;
 import com.pdftron.pdf.dialog.BookmarksDialogFragment;
 import com.pdftron.pdf.tools.ToolManager;
+import com.pdftron.pdf.utils.PdfViewCtrlSettingsManager;
 import com.pdftron.pdf.utils.ViewerUtils;
+import com.pdftron.reactnative.R;
 
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.util.Iterator;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -31,6 +39,12 @@ public class RNPdfViewCtrlTabFragment extends PdfViewCtrlTabFragment {
         Log.d(TAG, "initLayout: ");
         this.mDownloadDocumentDialog.setMessage("Opening book...");
 
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.mContentLayout = R.layout.custom_controls_fragment_tabbed_pdfviewctrl_tab_content;
     }
 
     @Override
@@ -119,10 +133,16 @@ public class RNPdfViewCtrlTabFragment extends PdfViewCtrlTabFragment {
     public void setBookmarkDialogCurrentTab(int index) {
         super.setBookmarkDialogCurrentTab(index);
     }
+
     // mới thêm vô đây
-    public void openNavigationUIControl(){
+    public void openNavigationUIControl() {
         this.mTabListener.onOutlineOptionSelected();
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated: ");
+    }
 
 }

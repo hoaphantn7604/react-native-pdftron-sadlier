@@ -217,6 +217,15 @@ public class DocumentViewViewManager extends ViewGroupManager<DocumentView> {
         }
     }
 
+    public void importBookmark(int tag, String bookmark) throws PDFNetException {
+        DocumentView documentView = mDocumentViews.get(tag);
+        if (documentView != null) {
+            documentView.importBookmar(bookmark);
+        } else {
+            throw new PDFNetException("", 0L, getName(), "importBookmarkCommand", "speech file error.");
+        }
+    }
+
     public void importAnnotations(int tag, String xfdf) throws PDFNetException {
         DocumentView documentView = mDocumentViews.get(tag);
         if (documentView != null) {

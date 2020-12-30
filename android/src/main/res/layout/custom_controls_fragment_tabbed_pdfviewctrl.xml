@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        tools:layout="@layout/controls_fragment_tabbed_pdfviewctrl_tab_content" >
+        tools:layout="@layout/custom_controls_fragment_tabbed_pdfviewctrl_tab_content" >
     </android.view.DispatchFairInsetsFrameLayout>
 
     <!-- NOTE: This layout *MUST* have android:fitsSystemWindows="true" so that

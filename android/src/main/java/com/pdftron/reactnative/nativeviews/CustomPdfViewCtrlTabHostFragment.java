@@ -4,15 +4,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -20,16 +18,19 @@ import com.pdftron.pdf.PDFViewCtrl;
 import com.pdftron.pdf.controls.PdfViewCtrlTabFragment;
 import com.pdftron.pdf.controls.PdfViewCtrlTabHostFragment;
 import com.pdftron.pdf.dialog.BookmarksDialogFragment;
+import com.pdftron.pdf.dialog.ViewModePickerDialogFragment;
+import com.pdftron.pdf.tools.ToolManager;
 import com.pdftron.pdf.utils.DialogFragmentTab;
 import com.pdftron.pdf.utils.Utils;
 import com.pdftron.reactnative.R;
 
 import java.util.ArrayList;
 
-public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment {
+public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment implements CustomViewModePickerDialogFragment.CustomViewModePickerDialogFragmentListener, CustomBookmarkDialogFragment.ThumbnailClickListener {
     private final String TAG = "ahihi-" + CustomPdfViewCtrlTabHostFragment.class.getSimpleName();
     protected ImageButton mBtnBookmark;
     protected boolean mShowCustomizeTool = false;
+    private BookmarksDialogFragment.BookmarksDialogListener mBookmarksDialogListener = null;
 
     @Nullable
     @Override
@@ -55,6 +56,11 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
         });
     }
 
+    @Override
+    public boolean showAnnotationToolbar(int mode, ToolManager.ToolMode toolMode) {
+        Log.d(TAG, "showAnnotationToolbar: ");
+        return super.showAnnotationToolbar(mode, toolMode);
+    }
 
     @Override
     protected ArrayList<DialogFragmentTab> getBookmarksDialogTabs() {
@@ -116,7 +122,7 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
                 }
 
                 bundle.putBoolean("is_read_only", false);
-                return new DialogFragmentTab(ThumbnailDialogFragment.class, "tab-outline", Utils.getDrawable(this.getContext(), R.drawable.toolbar_page), (String) null, "Thumbnails", bundle);
+                return new DialogFragmentTab(ThumbnailDialogFragment.class, "tab-outline", Utils.getDrawable(this.getContext(), R.drawable.toolbar_page), null, "Thumbnails", bundle);
             }
         }
     }
@@ -128,7 +134,8 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
     }
 
     protected BookmarksDialogFragment createCustomBookmarkDialogFragmentInstance() {
-        CustomBookmarkDialogFragment.DialogMode mode = this.canOpenNavigationListAsSideSheet() ? CustomBookmarkDialogFragment.DialogMode.SHEET : CustomBookmarkDialogFragment.DialogMode.DIALOG;
+        // CustomBookmarkDialogFragment.DialogMode mode = this.canOpenNavigationListAsSideSheet() ? CustomBookmarkDialogFragment.DialogMode.SHEET : CustomBookmarkDialogFragment.DialogMode.DIALOG;
+        CustomBookmarkDialogFragment.DialogMode mode = CustomBookmarkDialogFragment.DialogMode.DIALOG;
         return CustomBookmarkDialogFragment.newInstance(mode);
     }
 
@@ -152,21 +159,29 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
                     this.mBookmarksDialog.setPdfViewCtrl(pdfViewCtrl).setDialogFragmentTabs(this.getBookmarksDialogTabs(), initialTabIndex).setCurrentBookmark(this.mCurrentBookmark);
                     this.mBookmarksDialog.setBookmarksDialogListener(this);
                     this.mBookmarksDialog.setBookmarksTabsListener(this);
+                    ((CustomBookmarkDialogFragment) this.mBookmarksDialog).setThumbnailClickListener(this);
                     this.mBookmarksDialog.setStyle(DialogFragment.STYLE_NO_TITLE, R.style.CustomAppTheme);
-                    if (this.canOpenNavigationListAsSideSheet()) {
-                        int topMargin = this.getToolbarHeight();
-                        if (this.mViewerConfig != null && !this.mViewerConfig.isAutoHideToolbarEnabled()) {
-                            topMargin = 0;
-                        }
+                    FragmentManager fragmentManager = this.getFragmentManager();
 
-                        currentFragment.openNavigationList(this.mBookmarksDialog, topMargin, this.mSystemWindowInsetBottom);
-                        this.mBookmarksDialog = null;
-                    } else {
-                        FragmentManager fragmentManager = this.getFragmentManager();
-                        if (fragmentManager != null) {
-                            this.mBookmarksDialog.show(fragmentManager, "bookmarks_dialog");
-                        }
+                    // Show fullscreen dialog
+                    if (fragmentManager != null) {
+                        this.mBookmarksDialog.show(fragmentManager, "bookmarks_dialog");
                     }
+
+//                    if (this.canOpenNavigationListAsSideSheet()) {
+//                        int topMargin = this.getToolbarHeight();
+//                        if (this.mViewerConfig != null && !this.mViewerConfig.isAutoHideToolbarEnabled()) {
+//                            topMargin = 0;
+//                        }
+//
+//                        currentFragment.openNavigationList(this.mBookmarksDialog, topMargin, this.mSystemWindowInsetBottom);
+//                        this.mBookmarksDialog = null;
+//                    } else {
+//                        FragmentManager fragmentManager = this.getFragmentManager();
+//                        if (fragmentManager != null) {
+//                            this.mBookmarksDialog.show(fragmentManager, "bookmarks_dialog");
+//                        }
+//                    }
 
                     this.stopHideToolbarsTimer();
                 }
@@ -174,8 +189,136 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
         }
     }
 
-    public PdfViewCtrlTabHostFragment useCustomizeTool(boolean mShowCustomizeTool) {
+    @Override
+    public void onBookmarksDialogWillDismiss(int tabIndex) {
+        super.onBookmarksDialogWillDismiss(tabIndex);
+        if (this.mBookmarksDialogListener != null) {
+            this.mBookmarksDialogListener.onBookmarksDialogWillDismiss(tabIndex);
+        }
+    }
+
+    @Override
+    public void onBookmarksDialogDismissed(int tabIndex) {
+        super.onBookmarksDialogDismissed(tabIndex);
+        if (this.mBookmarksDialogListener != null) {
+            this.mBookmarksDialogListener.onBookmarksDialogDismissed(tabIndex);
+        }
+    }
+
+    public CustomPdfViewCtrlTabHostFragment useCustomizeTool(boolean mShowCustomizeTool) {
         this.mShowCustomizeTool = mShowCustomizeTool;
         return this;
+    }
+
+    public CustomPdfViewCtrlTabHostFragment setBookmarkDialogListener(BookmarksDialogFragment.BookmarksDialogListener listener) {
+        this.mBookmarksDialogListener = listener;
+        return this;
+    }
+
+    @Override
+    protected void onViewModeOptionSelected() {
+        PdfViewCtrlTabFragment currentFragment = this.getCurrentPdfViewCtrlFragment();
+        if (currentFragment != null) {
+            currentFragment.updateCurrentPageInfo();
+            PDFViewCtrl.PagePresentationMode currentViewMode = PDFViewCtrl.PagePresentationMode.SINGLE_CONT;
+            PDFViewCtrl pdfViewCtrl = currentFragment.getPDFViewCtrl();
+            if (pdfViewCtrl != null) {
+                currentViewMode = pdfViewCtrl.getPagePresentationMode();
+            }
+
+            if (currentViewMode == PDFViewCtrl.PagePresentationMode.SINGLE_VERT) {
+                currentViewMode = PDFViewCtrl.PagePresentationMode.SINGLE_CONT;
+            } else if (currentViewMode == PDFViewCtrl.PagePresentationMode.FACING_VERT) {
+                currentViewMode = PDFViewCtrl.PagePresentationMode.FACING_CONT;
+            } else if (currentViewMode == PDFViewCtrl.PagePresentationMode.FACING_COVER_VERT) {
+                currentViewMode = PDFViewCtrl.PagePresentationMode.FACING_COVER_CONT;
+            }
+
+            boolean isRtlMode = currentFragment.isRtlMode();
+            boolean isReflowMode = currentFragment.isReflowMode();
+            int reflowTextSize = currentFragment.getReflowTextSize();
+            ArrayList<Integer> hiddenViewModeItems = new ArrayList();
+            if (this.mViewerConfig != null && !this.mViewerConfig.isShowCropOption()) {
+                hiddenViewModeItems.add(ViewModePickerDialogFragment.ViewModePickerItems.ITEM_ID_USERCROP.getValue());
+            }
+
+            if (this.mViewerConfig != null && this.mViewerConfig.getHideViewModeIds() != null) {
+                int[] var8 = this.mViewerConfig.getHideViewModeIds();
+                int var9 = var8.length;
+
+                for (int var10 = 0; var10 < var9; ++var10) {
+                    int item = var8[var10];
+                    hiddenViewModeItems.add(item);
+                }
+            }
+
+            CustomViewModePickerDialogFragment dialog = CustomViewModePickerDialogFragment.newInstance(currentViewMode, isRtlMode, isReflowMode, reflowTextSize, hiddenViewModeItems);
+            dialog.setViewModePickerDialogFragmentListener(this);
+            dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomAppTheme);
+            FragmentManager fragmentManager = this.getFragmentManager();
+            if (fragmentManager != null) {
+                dialog.show(fragmentManager, "view_mode_picker");
+            }
+
+            this.stopHideToolbarsTimer();
+        }
+    }
+
+    @Override
+    public void onThumbnailClickListener(int page) {
+        this.getCurrentPdfViewCtrlFragment().setCurrentPageHelper(page, true);
+        Log.d(TAG, "onThumbnailClickListener: " + page);
+    }
+
+    @Override
+    public void onTabSingleTapConfirmed() {
+        PdfViewCtrlTabFragment currentFragment = this.getCurrentPdfViewCtrlFragment();
+        if (currentFragment != null) {
+            if (!currentFragment.isAnnotationMode() && !this.mIsSearchMode) {
+                if (this.mAppBarLayout.getVisibility() == View.VISIBLE) {
+                    this.hideUI();
+                } else {
+                    this.showUI();
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public void hideUI() {
+        if (this.mViewerConfig != null && !this.mViewerConfig.isAutoHideToolbarEnabled()) {
+            this.setThumbSliderVisibility(false, true);
+        } else {
+            Activity activity = this.getActivity();
+            PdfViewCtrlTabFragment currentFragment = this.getCurrentPdfViewCtrlFragment();
+            if (activity == null || currentFragment == null) {
+                return;
+            }
+
+            boolean canHideToolbars = currentFragment.onHideToolbars();
+            boolean canEnterFullscreenMode = currentFragment.onEnterFullscreenMode();
+            boolean isThumbSliderVisible = currentFragment.isThumbSliderVisible();
+            boolean isAnnotationMode = currentFragment.isAnnotationMode();
+
+            if (canHideToolbars) {
+                this.setToolbarsVisible(false);
+            }
+
+            if (isThumbSliderVisible && canHideToolbars && canEnterFullscreenMode || !isThumbSliderVisible && canEnterFullscreenMode) {
+                if (isAnnotationMode) {
+                    this.showSystemStatusBar();
+                } else {
+                    this.hideSystemUI();
+                }
+            }
+
+            if (!this.isInFullScreenMode() && currentFragment.isNavigationListShowing()) {
+                View view = this.getView();
+                if (view != null) {
+                    ViewCompat.requestApplyInsets(view);
+                }
+            }
+        }
     }
 }

@@ -45,6 +45,7 @@ export default class DocumentView extends PureComponent {
     currentUser: PropTypes.string,
     currentUserName: PropTypes.string,
     onExportAnnotationCommand: PropTypes.func,
+    pageLabel:PropTypes.func,
     autoSaveEnabled: PropTypes.bool,
     pageChangeOnTap: PropTypes.bool,
     showCustomizeTool: PropTypes.bool,
@@ -173,6 +174,14 @@ export default class DocumentView extends PureComponent {
     const tag = findNodeHandle(this._viewerRef);
     if (tag != null) {
       return DocumentViewManager.importBookmarks(tag, bookmark);
+    }
+    return Promise.resolve();
+  }
+
+  pageLabel = (mapping) => {
+    const tag = findNodeHandle(this._viewerRef);
+    if (tag != null) {
+      return DocumentViewManager.pageLabel(tag, mapping);
     }
     return Promise.resolve();
   }

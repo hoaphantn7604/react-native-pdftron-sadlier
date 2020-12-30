@@ -27,17 +27,17 @@
         android:title="@string/action_annotation_toolbar"
         app:showAsAction="always" />
 
-    <item
-        android:id="@id/undo"
-        android:icon="@drawable/ic_undo_black_24dp"
-        android:title="@string/undo"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@id/undo"-->
+<!--        android:icon="@drawable/ic_undo_black_24dp"-->
+<!--        android:title="@string/undo"-->
+<!--        app:showAsAction="never" />-->
 
-    <item
-        android:id="@id/redo"
-        android:icon="@drawable/ic_redo_black_24dp"
-        android:title="@string/redo"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@id/redo"-->
+<!--        android:icon="@drawable/ic_redo_black_24dp"-->
+<!--        android:title="@string/redo"-->
+<!--        app:showAsAction="never" />-->
 
     <item
         android:id="@id/action_share"

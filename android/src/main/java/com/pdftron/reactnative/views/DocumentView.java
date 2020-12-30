@@ -48,6 +48,7 @@ import com.pdftron.pdf.config.ToolManagerBuilder;
 import com.pdftron.pdf.config.ViewerConfig;
 import com.pdftron.pdf.controls.PdfViewCtrlTabFragment;
 import com.pdftron.pdf.controls.PdfViewCtrlTabHostFragment;
+import com.pdftron.pdf.dialog.BookmarksDialogFragment;
 import com.pdftron.pdf.dialog.ViewModePickerDialogFragment;
 import com.pdftron.pdf.model.UserBookmarkItem;
 import com.pdftron.pdf.tools.AdvancedShapeCreate;
@@ -73,7 +74,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
+public class DocumentView extends com.pdftron.pdf.controls.DocumentView implements BookmarksDialogFragment.BookmarksDialogListener {
 
     private static final String TAG = "ahihi-" + DocumentView.class.getSimpleName();
 
@@ -83,6 +84,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     private static final String ON_PAGE_CHANGED = "onPageChanged";
     private static final String ON_ZOOM_CHANGED = "onZoomChanged";
     private static final String ON_ANNOTATION_CHANGED = "onAnnotationChanged";
+    private static final String ON_BOOKMARK_CHANGED = "onBookmarkChanged";
     private static final String ON_DOCUMENT_ERROR = "onDocumentError";
     private static final String ON_EXPORT_ANNOTATION_COMMAND = "onExportAnnotationCommand";
 
@@ -101,6 +103,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     private static final String KEY_action_delete = "delete";
     private static final String KEY_annotations = "annotations";
     private static final String KEY_xfdfCommand = "xfdfCommand";
+    private static final String KEY_bookmark = "bookmark";
 
 
     // EVENTS END
@@ -254,7 +257,6 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         }
     };
 
-
     public DocumentView(Context context) {
         super(context);
     }
@@ -293,6 +295,8 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 .useSupportActionBar(true);
     }
 
+
+
     private boolean hasBookmarkAtPage(int page) {
         ArrayList<Integer> pages = BookmarkManager.getPdfBookmarkedPageNumbers(this.getPdfViewCtrl().getDoc());
         Log.d(TAG, "onPageChange: " + pages);
@@ -317,6 +321,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         if (deleteTargetIndex > -1) {
             try {
                 userBookmarkItems.get(deleteTargetIndex).pdfBookmark.delete();
+                this.handleBookmarkChange();
             } catch (PDFNetException e) {
                 e.printStackTrace();
             }
@@ -332,7 +337,6 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         this.menuBookmark = menu.findItem(R.id.action_bookmark);
         if (menuBookmark != null) {
             menuBookmark.setVisible(this.mShowCustomizeTool);
-
         }
         return true;
     }
@@ -347,6 +351,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                     this.removeUserItemBookmarkAt(pageNumber);
                 } else {
                     BookmarkManager.addPdfBookmark(this.getContext(), this.getPdfViewCtrl(), curObjNum, pageNumber);
+                    this.handleBookmarkChange();
                 }
                 this.refreshBookmarkIconAtPage(pageNumber);
             } catch (PDFNetException e) {
@@ -371,7 +376,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 .usingConfig(mViewerConfig)
                 .usingNavIcon(mShowNavIcon ? mNavIconRes : 0)
                 .usingCustomHeaders(mCustomHeaders)
-                .build(getContext()).useCustomizeTool(this.mShowCustomizeTool);
+                .build(getContext()).useCustomizeTool(this.mShowCustomizeTool).setBookmarkDialogListener(this);
         // return super.getViewer();
     }
 
@@ -614,6 +619,13 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
                 );
             }
         }
+        // Custom default hidden
+        mBuilder = mBuilder.hideViewModeItems(
+                new ViewModePickerDialogFragment.ViewModePickerItems[]{
+                        ViewModePickerDialogFragment.ViewModePickerItems.ITEM_ID_COLORMODE,
+                        ViewModePickerDialogFragment.ViewModePickerItems.ITEM_ID_USERCROP
+                }
+        );
         disableTools(args);
     }
 
@@ -698,7 +710,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         } else if ("AnnotationImageStamp".equals(item)) {
             mode = ToolManager.ToolMode.STAMPER;
         } else if ("AnnotationCreateRectAreaMeasurement".equals(item)) {
-           mode = ToolManager.ToolMode.RECT_AREA_MEASURE_CREATE;
+            mode = ToolManager.ToolMode.RECT_AREA_MEASURE_CREATE;
         }
         return mode;
     }
@@ -901,6 +913,17 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
         onReceiveNativeEvent(params);
     }
 
+    private void handleBookmarkChange() {
+        try {
+            WritableMap params = Arguments.createMap();
+            params.putString(ON_BOOKMARK_CHANGED, ON_BOOKMARK_CHANGED);
+            params.putString(KEY_bookmark, BookmarkManager.exportPdfBookmarks(this.getPdfViewCtrl().getDoc()));
+            onReceiveNativeEvent(params);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onTabDocumentLoaded(String tag) {
         super.onTabDocumentLoaded(tag);
@@ -1004,6 +1027,18 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
             }
         }
         return txt.getAsText();
+    }
+
+    public void importBookmar(String bookmark) {
+        try {
+            PDFViewCtrl pdfViewCtrl = getPdfViewCtrl();
+            PDFDoc pdfDoc = pdfViewCtrl.getDoc();
+            BookmarkManager.removeRootPdfBookmark(pdfViewCtrl, true);
+            BookmarkManager.importPdfBookmarks(pdfViewCtrl, bookmark);
+            hasBookmarkAtPage(pdfViewCtrl.getCurrentPage());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void importAnnotations(String xfdf) throws PDFNetException {
@@ -1297,5 +1332,17 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView {
     public void showCustomizeTool(boolean showCustomizeTool) {
         this.mShowCustomizeTool = showCustomizeTool;
         Log.d(TAG, "showCustomizeTool: truoc");
+    }
+
+    @Override
+    public void onBookmarksDialogWillDismiss(int i) {
+        Log.d(TAG, "onBookmarksDialogWillDismiss: ");
+
+    }
+
+    @Override
+    public void onBookmarksDialogDismissed(int i) {
+        int pageNumber = this.getPdfViewCtrl().getCurrentPage();
+        this.refreshBookmarkIconAtPage(pageNumber);
     }
 }

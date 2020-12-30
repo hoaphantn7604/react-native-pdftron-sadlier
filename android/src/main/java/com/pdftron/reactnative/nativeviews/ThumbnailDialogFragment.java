@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -605,47 +606,15 @@ public class ThumbnailDialogFragment extends OutlineDialogFragment implements Th
             this.mItemTouchHelper.attachToRecyclerView(this.mRecyclerView);
             itemClickHelper.setOnItemClickListener(new ItemClickHelper.OnItemClickListener() {
                 public void onItemClick(RecyclerView recyclerView, View v, int position, long id) {
-                    if (ThumbnailDialogFragment.this.mActionMode == null) {
-                        int page = ThumbnailDialogFragment.this.mAdapter.getItem(position);
-                        ThumbnailDialogFragment.this.mAdapter.setCurrentPage(page);
-                        ThumbnailDialogFragment.this.mHasEventAction = true;
-                        AnalyticsHandlerAdapter.getInstance().sendEvent(30, AnalyticsParam.viewerNavigateByParam(4));
-                        ThumbnailDialogFragment.this.dismiss();
-                    } else {
-                        ThumbnailDialogFragment.this.mItemSelectionHelper.setItemChecked(position, !ThumbnailDialogFragment.this.mItemSelectionHelper.isItemChecked(position));
-                        ThumbnailDialogFragment.this.mActionMode.invalidate();
-                    }
-
+                    int page = ThumbnailDialogFragment.this.mAdapter.getItem(position);
+                    ((CustomBookmarkDialogFragment) ThumbnailDialogFragment.this.getParentFragment()).onThumbnailClick(page);
+                    ((CustomBookmarkDialogFragment) ThumbnailDialogFragment.this.getParentFragment()).dismiss();
                 }
             });
             itemClickHelper.setOnItemLongClickListener(new ItemClickHelper.OnItemLongClickListener() {
                 public boolean onItemLongClick(RecyclerView recyclerView, View v, final int position, long id) {
-                    if (ThumbnailDialogFragment.this.mIsReadOnly) {
-                        return true;
-                    } else {
-                        if (ThumbnailDialogFragment.this.mActionMode == null) {
-                            ThumbnailDialogFragment.this.mItemSelectionHelper.setItemChecked(position, true);
-                            ThumbnailDialogFragment.this.mActionMode = new ToolbarActionMode(ThumbnailDialogFragment.this.getActivity(), ThumbnailDialogFragment.this.mCabToolbar);
-                            ThumbnailDialogFragment.this.mActionMode.startActionMode(ThumbnailDialogFragment.this.mActionModeCallback);
-                        } else {
-                            if (ThumbnailDialogFragment.this.mIsReadOnly) {
-                                if (ThumbnailDialogFragment.this.mOnThumbnailsEditAttemptWhileReadOnlyListener != null) {
-                                    ThumbnailDialogFragment.this.mOnThumbnailsEditAttemptWhileReadOnlyListener.onThumbnailsEditAttemptWhileReadOnly();
-                                }
+                    return false;
 
-                                return true;
-                            }
-
-                            ThumbnailDialogFragment.this.mRecyclerView.post(new Runnable() {
-                                public void run() {
-                                    RecyclerView.ViewHolder holder = ThumbnailDialogFragment.this.mRecyclerView.findViewHolderForAdapterPosition(position);
-                                    ThumbnailDialogFragment.this.mItemTouchHelper.startDrag(holder);
-                                }
-                            });
-                        }
-
-                        return true;
-                    }
                 }
             });
 //            this.getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
@@ -1277,4 +1246,5 @@ public class ThumbnailDialogFragment extends OutlineDialogFragment implements Th
     public interface OnThumbnailsViewDialogDismissListener {
         void onThumbnailsViewDialogDismiss(int var1, boolean var2);
     }
+
 }

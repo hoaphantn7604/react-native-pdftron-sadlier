@@ -230,6 +230,21 @@ RCT_REMAP_METHOD(importBookmarks,
     }
 }
 
+RCT_REMAP_METHOD(pageLabel,
+                 pageLabelViewTag:(nonnull NSNumber *)tag
+                 mapping:(NSString *)mapping
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+     
+        [[self documentViewManager] pageLabelViewTag:tag mapping:mapping];
+    }
+    @catch (NSException *exception) {
+        reject(@"export_failed", @"Failed to export bookmarks", [self errorFromException:exception]);
+    }
+}
+
 
 @end
   

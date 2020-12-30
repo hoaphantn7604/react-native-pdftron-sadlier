@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/pdfViewCtrlHost"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.pdftron.reactnative.nativeviews.CustomAnnotationToolbar
+        android:id="@+id/annotationToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/pdfviewctrl"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="@dimen/actionbar_elevation"
+        android:visibility="gone"
+        tools:targetApi="lollipop" />
+
+    <com.pdftron.pdf.PDFViewCtrl
+        android:id="@+id/pdfviewctrl"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintTop_toBottomOf="@id/annotationToolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/navigation_list"
+        android:scrollbars="vertical|horizontal" />
+
+    <ViewStub
+        android:id="@+id/stub_reflow"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout="@layout/controls_fragment_tabbed_sub_reflow"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/navigation_list"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/navigation_list"
+        android:layout_width="@dimen/standard_side_sheet"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/annotationToolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/pdfviewctrl"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
