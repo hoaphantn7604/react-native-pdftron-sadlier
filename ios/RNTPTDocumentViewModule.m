@@ -232,7 +232,7 @@ RCT_REMAP_METHOD(importBookmarks,
 
 RCT_REMAP_METHOD(pageLabel,
                  pageLabelViewTag:(nonnull NSNumber *)tag
-                 mapping:(NSString *)mapping
+                 mapping:(int)mapping
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {

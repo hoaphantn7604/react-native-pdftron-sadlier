@@ -271,6 +271,15 @@ public class DocumentViewViewManager extends ViewGroupManager<DocumentView> {
         }
     }
 
+    public void pageLabel(int tag, int item) throws PDFNetException {
+        DocumentView documentView = mDocumentViews.get(tag);
+        if (documentView != null) {
+            documentView.setPageLabel(item);
+        } else {
+            throw new PDFNetException("", 0L, getName(), "setToolMode", "Unable to find DocumentView.");
+        }
+    }
+
     public boolean commitTool(int tag) throws PDFNetException {
         DocumentView documentView = mDocumentViews.get(tag);
         if (documentView != null) {

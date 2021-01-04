@@ -102,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)importAnnotationCommand:(NSString *)xfdfCommand initialLoad:(BOOL)initialLoad;
 
-- (void)mappingPageLabel;
+- (void)setPageLabel:(int)mapping;
 
 @end
 

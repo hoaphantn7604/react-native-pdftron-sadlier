@@ -41,6 +41,7 @@ import com.pdftron.pdf.Field;
 import com.pdftron.pdf.PDFDoc;
 import com.pdftron.pdf.PDFViewCtrl;
 import com.pdftron.pdf.Page;
+import com.pdftron.pdf.PageLabel;
 import com.pdftron.pdf.TextExtractor;
 import com.pdftron.pdf.ViewChangeCollection;
 import com.pdftron.pdf.config.PDFViewCtrlConfig;
@@ -1261,6 +1262,16 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
             ToolManager.ToolMode mode = convStringToToolMode(item);
             getToolManager().setTool(getToolManager().createTool(mode, null));
         }
+    }
+
+    public void setPageLabel(int mapping) throws PDFNetException {
+        PDFViewCtrl pdfViewCtrl = getPdfViewCtrl();
+        PDFDoc pdfDoc = pdfViewCtrl.getDoc();
+        PageLabel L1 = PageLabel.create(pdfDoc, PageLabel.e_alphabetic_uppercase, "", 1);
+        pdfDoc.setPageLabel(1, L1);
+
+        PageLabel L = PageLabel.create(pdfDoc, PageLabel.e_decimal, "", 1);
+        pdfDoc.setPageLabel(mapping, L);
     }
 
     public boolean commitTool() {

@@ -35,6 +35,6 @@
 
 - (void)importAnnotationCommandForDocumentViewTag:(NSNumber *_Nullable)tag xfdfCommand:(NSString *_Nullable)xfdfCommand initialLoad:(BOOL)initialLoad;
 
-- (void)pageLabelViewTag:(NSNumber *_Nullable)tag mapping:(NSString *_Nullable)mapping;
+- (void)pageLabelViewTag:(NSNumber *_Nullable)tag mapping:(int)mapping;
 
 @end

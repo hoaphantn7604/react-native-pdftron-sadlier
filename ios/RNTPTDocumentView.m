@@ -837,28 +837,16 @@ NS_ASSUME_NONNULL_END
     }
 }
 
-- (void)mappingPageLabel
+- (void)setPageLabel: (int)mapping
 {
     PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
     PTPDFDoc *doc = [pdfViewCtrl GetDoc];
     
-    int i=1;
-    for (; i<=[doc GetPageCount]; ++i)
-    {
-        if(i < 3){
-            if(i == 1){
-                PTPageLabel *L1 = [PTPageLabel Create: [doc GetSDFDoc] style: e_ptroman_uppercase prefix: @"A" start_at: 1];
-                [doc SetPageLabel: 1 label: L1];
-            }
-            if(i == 2){
-                PTPageLabel *L2 = [PTPageLabel Create: [doc GetSDFDoc] style: e_ptroman_uppercase prefix: @"B" start_at:2];
-                [doc SetPageLabel: 2 label: L2];
-            }
-        }else{
-            PTPageLabel *L = [PTPageLabel Create: [doc GetSDFDoc] style: e_ptroman_uppercase prefix: [NSString stringWithFormat:@"%i", i] start_at: i];
-            [doc SetPageLabel: i label: L];
-        }
-    }
+    PTPageLabel *L1 = [PTPageLabel Create: [doc GetSDFDoc] style: e_ptalphabetic_uppercase prefix: @"" start_at: 1];
+    [doc SetPageLabel: 1 label: L1];
+           
+    PTPageLabel *L = [PTPageLabel Create: [doc GetSDFDoc] style: e_ptdecimal prefix: @"" start_at: 1];
+    [doc SetPageLabel: mapping label: L];
    
 }
 
