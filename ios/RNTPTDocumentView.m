@@ -3,6 +3,20 @@
 #import "RNTPTDocumentViewController.h"
 #import "RNTPTCollaborationDocumentViewController.h"
 #import "CPTDocumentViewSettingsController.h"
+#include <objc/runtime.h>
+
+static BOOL RNTPT_addMethod(Class cls, SEL selector, void (^block)(id))
+{
+    const IMP implementation = imp_implementationWithBlock(block);
+    
+    const BOOL added = class_addMethod(cls, selector, implementation, "v@:");
+    if (!added) {
+        imp_removeBlock(implementation);
+        return NO;
+    }
+    
+    return YES;
+}
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,6 +53,8 @@ NS_ASSUME_NONNULL_END
     _pageChangeOnTap = NO;
     _thumbnailViewEditingEnabled = YES;
     _bookmarkManager = [PTBookmarkManager defaultManager];
+    
+    _longPressMenuEnabled = YES;
 }
 
 -(instancetype)initWithFrame:(CGRect)frame
@@ -1552,6 +1568,106 @@ NS_ASSUME_NONNULL_END
     
     menuController.menuItems = [permittedItems copy];
 }
+
+- (BOOL)rnt_documentViewController:(PTDocumentViewController *)documentViewController filterMenuItemsForLongPressMenu:(UIMenuController *)menuController
+{
+    if (!self.longPressMenuEnabled) {
+        menuController.menuItems = nil;
+        return NO;
+    }
+    // Mapping from menu item title to identifier.
+    NSDictionary<NSString *, NSString *> *map = @{
+        PTCopyMenuItemTitleKey: PTCopyMenuItemIdentifierKey,
+        PTSearchMenuItemTitleKey: PTSearchMenuItemIdentifierKey,
+        PTShareMenuItemTitleKey: PTShareMenuItemIdentifierKey,
+        PTReadMenuItemTitleKey: PTReadMenuItemIdentifierKey,
+    };
+    NSArray<NSString *> *whitelist = @[
+        PTLocalizedString(PTHighlightWhiteListKey, nil),
+        PTLocalizedString(PTStrikeoutWhiteListKey, nil),
+        PTLocalizedString(PTUnderlineWhiteListKey, nil),
+        PTLocalizedString(PTSquigglyWhiteListKey, nil),
+    ];
+    // Get the localized title for each menu item.
+    NSMutableDictionary<NSString *, NSString *> *localizedMap = [NSMutableDictionary dictionary];
+    for (NSString *key in map) {
+        NSString *localizedKey = PTLocalizedString(key, nil);
+        if (!localizedKey) {
+            localizedKey = key;
+        }
+        localizedMap[localizedKey] = map[key];
+    }
+    
+    NSMutableArray<UIMenuItem *> *permittedItems = [NSMutableArray array];
+    for (UIMenuItem *menuItem in menuController.menuItems) {
+        NSString *menuItemId = localizedMap[menuItem.title];
+        
+        if (self.longPressMenuItems.count == 0) {
+            [permittedItems addObject:menuItem];
+        }
+        else {
+            if ([whitelist containsObject:menuItem.title]) {
+                [permittedItems addObject:menuItem];
+            }
+            else if (menuItemId && [self.longPressMenuItems containsObject:menuItemId]) {
+                [permittedItems addObject:menuItem];
+            }
+        }
+        
+        // Override action of of overridden annotation menu items.
+        if (menuItemId && [self.overrideLongPressMenuBehavior containsObject:menuItemId]) {
+            NSString *actionName = [NSString stringWithFormat:@"overriddenPressed_%@",
+                                    menuItemId];
+            const SEL selector = NSSelectorFromString(actionName);
+            
+            RNTPT_addMethod([self class], selector, ^(id self) {
+                [self overriddenLongPressMenuItemPressed:menuItemId];
+            });
+            
+            menuItem.action = selector;
+        }
+    }
+    
+    menuController.menuItems = [permittedItems copy];
+    
+    return YES;
+}
+
+- (void)overriddenLongPressMenuItemPressed:(NSString *)menuItemId
+{
+    NSMutableString *selectedText = [NSMutableString string];
+    
+    NSError *error = nil;
+    [self.pdfViewCtrl DocLockReadWithBlock:^(PTPDFDoc *doc) {
+        if (![self.pdfViewCtrl HasSelection]) {
+            return;
+        }
+        
+        const int selectionBeginPage = self.pdfViewCtrl.selectionBeginPage;
+        const int selectionEndPage = self.pdfViewCtrl.selectionEndPage;
+        
+        for (int pageNumber = selectionBeginPage; pageNumber <= selectionEndPage; pageNumber++) {
+            if ([self.pdfViewCtrl HasSelectionOnPage:pageNumber]) {
+                PTSelection *selection = [self.pdfViewCtrl GetSelection:pageNumber];
+                NSString *selectionText = [selection GetAsUnicode];
+                
+                [selectedText appendString:selectionText];
+            }
+        }
+    } error:&error];
+    if (error) {
+        NSLog(@"%@", error);
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(longPressMenuPressed:
+                                                    longPressMenu:
+                                                    longPressText:)]) {
+        [self.delegate longPressMenuPressed:self
+                              longPressMenu:menuItemId
+                              longPressText:[selectedText copy]];
+    }
+}
+
 
 #pragma mark - <PTDocumentViewControllerDelegate>
 

@@ -251,6 +251,27 @@ RCT_CUSTOM_VIEW_PROPERTY(thumbnailViewEditingEnabled, BOOL, RNTPTDocumentView)
     }
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(longPressMenuItems, NSArray, RNTPTDocumentView)
+{
+    if (json) {
+        view.longPressMenuItems = [RCTConvert NSArray:json];
+    }
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(overrideLongPressMenuBehavior, NSArray, RNTPTDocumentView)
+{
+    if (json) {
+        view.overrideLongPressMenuBehavior = [RCTConvert NSStringArray:json];
+    }
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(longPressMenuEnabled, BOOL, RNTPTDocumentView)
+{
+    if (json) {
+        view.longPressMenuEnabled = [RCTConvert BOOL:json];
+    }
+}
+
 - (UIView *)view
 {
     RNTPTDocumentView *documentView = [[RNTPTDocumentView alloc] init];

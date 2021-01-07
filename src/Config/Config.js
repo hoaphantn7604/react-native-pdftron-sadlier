@@ -108,4 +108,10 @@ export default {
     playSound: 'playSound',
     openAttachment: 'openAttachment',
   },
+  LongPressMenu: {
+    copy: 'copy',
+    search: 'search',
+    share: 'share',
+    read: 'read',
+  }
 };

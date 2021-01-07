@@ -125,17 +125,29 @@ NS_ASSUME_NONNULL_END
 
 - (BOOL)toolManager:(PTToolManager *)toolManager shouldShowMenu:(UIMenuController *)menuController forAnnotation:(PTAnnot *)annotation onPageNumber:(unsigned long)pageNumber
 {
-    [self.pdfViewCtrl DocLockReadWithBlock:^(PTPDFDoc * _Nullable doc) {
-        if (![annotation IsValid]) {
-            return;
-        }
-        
-        if ([self.delegate respondsToSelector:@selector(rnt_documentViewController:filterMenuItemsForAnnotationSelectionMenu:)]) {
-            [self.delegate rnt_documentViewController:self filterMenuItemsForAnnotationSelectionMenu:menuController];
-        }
-    } error:nil];
+    BOOL result = [super toolManager:toolManager shouldShowMenu:menuController forAnnotation:annotation onPageNumber:pageNumber];
+    if (!result) {
+        return NO;
+    }
     
-    return [super toolManager:toolManager shouldShowMenu:menuController forAnnotation:annotation onPageNumber:pageNumber];
+    BOOL showMenu = YES;
+    if (annotation) {
+        if ([self.delegate respondsToSelector:@selector(rnt_documentViewController:
+                                                        filterMenuItemsForAnnotationSelectionMenu:
+                                                        forAnnotation:)]) {
+            showMenu = [self.delegate rnt_documentViewController:self
+                       filterMenuItemsForAnnotationSelectionMenu:menuController
+                                                   forAnnotation:annotation];
+        }
+    } else {
+        if ([self.delegate respondsToSelector:@selector(rnt_documentViewController:
+                                                        filterMenuItemsForLongPressMenu:)]) {
+            showMenu = [self.delegate rnt_documentViewController:self
+                                 filterMenuItemsForLongPressMenu:menuController];
+        }
+    }
+    
+    return showMenu;
 }
 
 #pragma mark - <PTAnnotationToolbarDelegate>

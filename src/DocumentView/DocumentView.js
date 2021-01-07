@@ -24,20 +24,32 @@ export default class DocumentView extends PureComponent {
     onDocumentError: PropTypes.func,
     onPageChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
-    onBookmarkChanged: PropTypes.func,
     disabledElements: PropTypes.array,
     disabledTools: PropTypes.array,
+    longPressMenuItems: PropTypes.array,
+    overrideLongPressMenuBehavior: PropTypes.array,
+    onLongPressMenuPress: PropTypes.func,
+    longPressMenuEnabled: PropTypes.bool,
     annotationMenuItems: PropTypes.array,
+    overrideAnnotationMenuBehavior: PropTypes.array,
+    onAnnotationMenuPress: PropTypes.func,
+    hideAnnotationMenu: PropTypes.array,
+    overrideBehavior: PropTypes.array,
+    onBehaviorActivated: PropTypes.func,
     topToolbarEnabled: PropTypes.bool,
     bottomToolbarEnabled: PropTypes.bool,
+    hideToolbarsOnTap: PropTypes.bool,
     pageIndicatorEnabled: PropTypes.bool,
+    onAnnotationsSelected: PropTypes.func,
     onAnnotationChanged: PropTypes.func,
+    onFormFieldValueChanged: PropTypes.func,
     readOnly: PropTypes.bool,
     thumbnailViewEditingEnabled: PropTypes.bool,
     fitMode: PropTypes.string,
     layoutMode: PropTypes.string,
     padStatusBar: PropTypes.bool,
     continuousAnnotationEditing: PropTypes.bool,
+    selectAnnotationAfterCreation: PropTypes.bool,
     annotationAuthor: PropTypes.string,
     showSavedSignatures: PropTypes.bool,
     isBase64String: PropTypes.bool,
@@ -45,10 +57,13 @@ export default class DocumentView extends PureComponent {
     currentUser: PropTypes.string,
     currentUserName: PropTypes.string,
     onExportAnnotationCommand: PropTypes.func,
-    pageLabel:PropTypes.func,
     autoSaveEnabled: PropTypes.bool,
     pageChangeOnTap: PropTypes.bool,
-    showCustomizeTool: PropTypes.bool,
+    followSystemDarkMode: PropTypes.bool,
+    useStylusAsPen: PropTypes.bool,
+    signSignatureFieldsWithStamps: PropTypes.bool,
+    annotationPermissionCheckEnabled: PropTypes.bool,
+    onBookmarkChanged: PropTypes.func,
     ...ViewPropTypes,
   };
 
@@ -100,6 +115,13 @@ export default class DocumentView extends PureComponent {
       this.props.onBookmarkChanged({
         'bookmark':event.nativeEvent.bookmark
       });
+    } else if (event.nativeEvent.onLongPressMenuPress) {
+      if (this.props.onLongPressMenuPress) {
+        this.props.onLongPressMenuPress({
+          'longPressMenu': event.nativeEvent.longPressMenu,
+          'longPressText': event.nativeEvent.longPressText,
+        });
+      }
     }
   }
 
