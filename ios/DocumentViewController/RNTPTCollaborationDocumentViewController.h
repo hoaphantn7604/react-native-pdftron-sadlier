@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RNTPTCollaborationDocumentViewController : PTCollaborationDocumentViewController
 
+
 @property (nonatomic, weak, nullable) id<RNTPTDocumentViewControllerDelegate> delegate;
 
 @end

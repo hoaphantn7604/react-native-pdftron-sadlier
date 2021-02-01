@@ -172,6 +172,8 @@ static NSString * const PTFormFieldValueKey = @"fieldValue";
 
 - (void)longPressMenuPressed:(RNTPTDocumentView *)sender longPressMenu:(NSString *)longPressMenu longPressText:(NSString *)longPressText;
 
+- (void)annotationMenuPressed:(RNTPTDocumentView *)sender annotationMenu:(NSString *)annotationMenu annotations:(NSArray<NSDictionary<NSString *, id> *> *)annotations;
+
 @end
 
 @interface RNTPTDocumentView : UIView
@@ -232,6 +234,11 @@ static NSString * const PTFormFieldValueKey = @"fieldValue";
 @property (nonatomic, copy, nullable) NSArray<NSString *> *overrideLongPressMenuBehavior;
 @property (nonatomic, copy, nullable) NSArray<NSString *> *longPressMenuItems;
 @property (nonatomic, assign, getter=isLongPressMenuEnabled) BOOL longPressMenuEnabled;
+
+// annotation selection menu customization
+@property (nonatomic, copy, nullable) NSArray<NSString *> *overrideAnnotationMenuBehavior;
+@property (nonatomic, copy, nullable) NSArray<NSString *> *overrideBehavior;
+@property (nonatomic, copy, nullable) NSArray<NSString *> *hideAnnotMenuTools;
 
 #pragma mark - Methods
 

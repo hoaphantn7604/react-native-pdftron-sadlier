@@ -272,6 +272,13 @@ RCT_CUSTOM_VIEW_PROPERTY(longPressMenuEnabled, BOOL, RNTPTDocumentView)
     }
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(hideAnnotationMenu, NSArray, RNTPTDocumentView)
+{
+    if (json) {
+        view.hideAnnotMenuTools = [RCTConvert NSStringArray:json];
+    }
+}
+
 - (UIView *)view
 {
     RNTPTDocumentView *documentView = [[RNTPTDocumentView alloc] init];

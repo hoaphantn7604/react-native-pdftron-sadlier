@@ -33,6 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) BOOL needsCustomHeadersUpdate;
 
+// Array of wrapped PTExtendedAnnotTypes.
+@property (nonatomic, strong, nullable) NSArray<NSNumber *> *hideAnnotMenuToolsAnnotTypes;
+
 @end
 
 NS_ASSUME_NONNULL_END
@@ -90,7 +93,7 @@ NS_ASSUME_NONNULL_END
             [self.delegate documentViewDetachedFromWindow:self];
         }
     }
-   
+    
 }
 
 - (void)didMoveToSuperview
@@ -201,7 +204,7 @@ NS_ASSUME_NONNULL_END
         [self.documentViewController openDocumentWithURL:fileURL
                                                 password:self.password];
         
-          [PTOverrides overrideClass:[PTDocumentViewSettingsController class] withClass:[CPTDocumentViewSettingsController class]];
+        [PTOverrides overrideClass:[PTDocumentViewSettingsController class] withClass:[CPTDocumentViewSettingsController class]];
         [self applyLayoutMode];
     } else {
         NSData *data = [[NSData alloc] initWithBase64EncodedString:self.document options:0];
@@ -217,7 +220,7 @@ NS_ASSUME_NONNULL_END
         
         [self.documentViewController openDocumentWithPDFDoc:doc];
         
-          [PTOverrides overrideClass:[PTDocumentViewSettingsController class] withClass:[CPTDocumentViewSettingsController class]];
+        [PTOverrides overrideClass:[PTDocumentViewSettingsController class] withClass:[CPTDocumentViewSettingsController class]];
         [self applyLayoutMode];
     }
     
@@ -226,10 +229,10 @@ NS_ASSUME_NONNULL_END
     if(self.showCustomizeTool) {
         [self applyCutomizeAnnotationTools];
         [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-               [[NSNotificationCenter defaultCenter]
-                  addObserver:self selector:@selector(orientationChanged:)
-                  name:UIDeviceOrientationDidChangeNotification
-                  object:[UIDevice currentDevice]];
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self selector:@selector(orientationChanged:)
+         name:UIDeviceOrientationDidChangeNotification
+         object:[UIDevice currentDevice]];
     }
 }
 
@@ -244,14 +247,14 @@ NS_ASSUME_NONNULL_END
         PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
         PTPDFDoc *doc = [pdfViewCtrl GetDoc];
         PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage] pageNumber:self.pdfViewCtrl.currentPage];
-         
+        
         [_bookmarkManager addBookmark:userBookmark forDoc:doc];
         
         [self onChangeBookmark];
         [self bookmarkIcon];
     }
     @catch (NSException *exception) {
-       return;
+        return;
     }
 }
 
@@ -262,7 +265,7 @@ NS_ASSUME_NONNULL_END
         PTPDFDoc *doc = [pdfViewCtrl GetDoc];
         PTBookmark *rootBookmark = [_bookmarkManager rootPDFBookmarkForDoc:doc create:YES];
         PTBookmark *delete = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
-         
+        
         if ([delete IsValid])
         {
             [delete Delete];
@@ -272,7 +275,7 @@ NS_ASSUME_NONNULL_END
         [self bookmarkIcon];
     }
     @catch (NSException *exception) {
-      return;
+        return;
     }
 }
 
@@ -382,13 +385,13 @@ NS_ASSUME_NONNULL_END
     
     NSDictionary *hideElementActions = @{
         @"exportButtonItem":
-          ^{
-              self.documentViewController.exportButtonHidden = YES;
-          },
+            ^{
+                self.documentViewController.exportButtonHidden = YES;
+            },
         @"addPagesButtonHidden":
-           ^{
-               self.documentViewController.addPagesButtonHidden = YES;
-           },
+            ^{
+                self.documentViewController.addPagesButtonHidden = YES;
+            },
         @"toolsButton":
             ^{
                 self.documentViewController.annotationToolbarButtonHidden = YES;
@@ -752,7 +755,7 @@ NS_ASSUME_NONNULL_END
     PTPage *page = [doc GetPage:number];
     PTTextExtractor *txt = [[PTTextExtractor alloc] init];
     [txt Begin: page clip_ptr: 0 flags: 0]; // Read the page.
-
+    
     PTTextExtractorLine *line = [txt GetFirstLine];
     PTWord *word;
     for (; [line IsValid]; line=[line GetNextLine]) {
@@ -838,7 +841,7 @@ NS_ASSUME_NONNULL_END
     @catch (NSException *exception) {
         return nil;
     }
-
+    
 }
 
 - (void)importBookmark:(NSString *)bookmark{
@@ -855,15 +858,28 @@ NS_ASSUME_NONNULL_END
 
 - (void)setPageLabel: (int)mapping
 {
-    PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
-    PTPDFDoc *doc = [pdfViewCtrl GetDoc];
-    
-    PTPageLabel *L1 = [PTPageLabel Create: [doc GetSDFDoc] style: e_ptalphabetic_uppercase prefix: @"" start_at: 1];
-    [doc SetPageLabel: 1 label: L1];
-           
-    PTPageLabel *L = [PTPageLabel Create: [doc GetSDFDoc] style: e_ptdecimal prefix: @"" start_at: 1];
-    [doc SetPageLabel: mapping label: L];
-   
+    PTPDFViewCtrl *pdfViewCtrl = self.documentViewController.pdfViewCtrl;
+
+    PTPageLabelManager *manager = self.documentViewController.toolManager.pageLabelManager;
+
+    NSError *error = nil;
+    [pdfViewCtrl DocLock:YES withBlock:^(PTPDFDoc * _Nullable doc) {
+
+    const int pageCount = [doc GetPageCount];
+
+    // Use uppercase roman numeral labels for page number range [1, mapping).
+    [manager setPageLabelStyle:e_ptalphabetic_uppercase prefix:nil startValue:1 fromPageNumber:1
+    toPageNumber:MIN(mapping - 1, pageCount) + 1];
+
+    if (mapping <= pageCount) {
+    // Use decimal labels for page number range [mapping, pageCount].
+    [manager setPageLabelStyle:e_ptdecimal prefix:nil startValue:1 fromPageNumber:mapping + 1 toPageNumber:pageCount];
+    }
+
+    } error:&error];
+    if (error) {
+        NSLog(@"Error: %@", error);
+    }
 }
 
 #pragma mark - Flatten annotations
@@ -1172,108 +1188,105 @@ NS_ASSUME_NONNULL_END
     // Custom navigation tool bar icon
     NSMutableArray* leftItems = [self.documentViewController.navigationItem.leftBarButtonItems mutableCopy];
     UIBarButtonItem* navigationToolbar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navigation-toolbar"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressNavigationToolbar:)];
-      [leftItems addObject:navigationToolbar];
-      self.documentViewController.navigationItem.leftBarButtonItems = [leftItems copy];
+    [leftItems addObject:navigationToolbar];
+    self.documentViewController.navigationItem.leftBarButtonItems = [leftItems copy];
 }
 
 - (void)bookmarkIcon
 {
     if(self.showCustomizeTool) {
-       PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
-       PTPDFDoc *doc = [pdfViewCtrl GetDoc];
-       PTBookmark *rootBookmark = [_bookmarkManager rootPDFBookmarkForDoc:doc create:YES];
-       PTBookmark *bookmark = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
-          
-       NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
-       
-       UIBarButtonItem* bookmarkRemove = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-active"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressRemoveBookmark:)];
-       
-       UIBarButtonItem* bookmarkAdd = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-inactive"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
-       
-       if ([bookmark IsValid])
-       {
-           if ([rightItems count] > 3)
-           {
-               [rightItems replaceObjectAtIndex:3 withObject:bookmarkRemove];
-           }
-           else {
-               [rightItems addObject:bookmarkRemove];
-           }
-       } else {
-           if ([rightItems count] > 3){
-               [rightItems replaceObjectAtIndex:3 withObject:bookmarkAdd];
-           }
-           else {
-               [rightItems addObject:bookmarkAdd];
-           }
-       }
-       
-       self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
+        PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
+        PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+        PTBookmark *rootBookmark = [_bookmarkManager rootPDFBookmarkForDoc:doc create:YES];
+        PTBookmark *bookmark = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
+        
+        NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
+        
+        UIBarButtonItem* bookmarkRemove = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-active"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressRemoveBookmark:)];
+        
+        UIBarButtonItem* bookmarkAdd = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bookmark-inactive"] style:UIBarButtonItemStylePlain target:nil action:@selector(didPressAddBookmark:)];
+        
+        if ([bookmark IsValid])
+        {
+            if ([rightItems count] > 3)
+            {
+                [rightItems replaceObjectAtIndex:3 withObject:bookmarkRemove];
+            }
+            else {
+                [rightItems addObject:bookmarkRemove];
+            }
+        } else {
+            if ([rightItems count] > 3){
+                [rightItems replaceObjectAtIndex:3 withObject:bookmarkAdd];
+            }
+            else {
+                [rightItems addObject:bookmarkAdd];
+            }
+        }
+        
+        self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
     }
 }
 
 - (void)applyCustomizeRightTools {
-    if ( UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPad )
+    NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
+    if ([rightItems count] > 2)
     {
-        NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
-        if ([rightItems count] > 2)
-        {
-            [rightItems replaceObjectAtIndex:2 withObject:self.documentViewController.searchButtonItem];
-        }
-        else {
-            [rightItems addObject:self.documentViewController.searchButtonItem];
-        }
-        self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
-        [self bookmarkIcon];
+        [rightItems replaceObjectAtIndex:2 withObject:self.documentViewController.searchButtonItem];
     }
+    else {
+        [rightItems addObject:self.documentViewController.searchButtonItem];
+    }
+    self.documentViewController.navigationItem.rightBarButtonItems = [rightItems copy];
+    [self bookmarkIcon];
 }
 
 
 - (void)applyCutomizeAnnotationTools {
     if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
         self.documentViewController.annotationToolbar.precedenceArray = @[
-                                             @(PTAnnotBarButtonStickynote),
-                                                @(PTAnnotBarButtonFreehand),
-                                                @(PTAnnotBarButtonEraser),
-                                                @(PTAnnotBarButtonFreetext),
-                                                @(PTAnnotBarButtonArrow),
-                                                @(PTAnnotBarButtonLine),
-                                                @(PTAnnotBarButtonRectangle),
-                                                @(PTAnnotBarButtonEllipse),
-                                                @(PTAnnotBarButtonPolygon),
-                                                @(PTAnnotBarButtonPolyline),
-                                                @(PTAnnotBarButtonFreehandHighlight),
-                                                @(PTAnnotBarButtonPan),
-                                                @(PTAnnotBarButtonClose),];
+            @(PTAnnotBarButtonStickynote),
+            @(PTAnnotBarButtonFreehand),
+            @(PTAnnotBarButtonEraser),
+            @(PTAnnotBarButtonFreetext),
+            @(PTAnnotBarButtonArrow),
+            @(PTAnnotBarButtonLine),
+            @(PTAnnotBarButtonRectangle),
+            @(PTAnnotBarButtonEllipse),
+            @(PTAnnotBarButtonPolygon),
+            @(PTAnnotBarButtonPolyline),
+            @(PTAnnotBarButtonFreehandHighlight),
+            @(PTAnnotBarButtonPan),
+            @(PTAnnotBarButtonClose),];
     } else {
-       if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation))
+        if (UIDeviceOrientationIsPortrait([UIDevice currentDevice].orientation))
         {
             self.documentViewController.annotationToolbar.precedenceArray = @[
-            @(PTAnnotBarButtonStickynote),
-               @(PTAnnotBarButtonFreehand),
-               @(PTAnnotBarButtonEraser),
-               @(PTAnnotBarButtonFreetext),
-               @(PTAnnotBarButtonArrow),
-               @(PTAnnotBarButtonPan),
-               @(PTAnnotBarButtonClose),];
+                @(PTAnnotBarButtonStickynote),
+                @(PTAnnotBarButtonFreehand),
+                @(PTAnnotBarButtonEraser),
+                @(PTAnnotBarButtonFreetext),
+                @(PTAnnotBarButtonArrow),
+                @(PTAnnotBarButtonPan),
+                @(PTAnnotBarButtonClose),];
         }
-       
-       if(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
-       {
+        
+        if(UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation))
+        {
             self.documentViewController.annotationToolbar.precedenceArray = @[
-            @(PTAnnotBarButtonStickynote),
-               @(PTAnnotBarButtonFreehand),
-               @(PTAnnotBarButtonEraser),
-               @(PTAnnotBarButtonFreetext),
-               @(PTAnnotBarButtonArrow),
-               @(PTAnnotBarButtonLine),
-               @(PTAnnotBarButtonRectangle),
-               @(PTAnnotBarButtonEllipse),
-               @(PTAnnotBarButtonPolygon),
-               @(PTAnnotBarButtonPolyline),
-               @(PTAnnotBarButtonFreehandHighlight),
-               @(PTAnnotBarButtonPan),
-               @(PTAnnotBarButtonClose),];
+                @(PTAnnotBarButtonStickynote),
+                @(PTAnnotBarButtonFreehand),
+                @(PTAnnotBarButtonEraser),
+                @(PTAnnotBarButtonFreetext),
+                @(PTAnnotBarButtonArrow),
+                @(PTAnnotBarButtonLine),
+                @(PTAnnotBarButtonRectangle),
+                @(PTAnnotBarButtonEllipse),
+                @(PTAnnotBarButtonPolygon),
+                @(PTAnnotBarButtonPolyline),
+                @(PTAnnotBarButtonFreehandHighlight),
+                @(PTAnnotBarButtonPan),
+                @(PTAnnotBarButtonClose),];
         }
     }
 }
@@ -1324,13 +1337,72 @@ NS_ASSUME_NONNULL_END
 - (void)applyColorMode
 {
     if (self.colorMode == 1){
-         [self.pdfViewCtrl SetColorPostProcessMode: e_ptpostprocess_none];
+        [self.pdfViewCtrl SetColorPostProcessMode: e_ptpostprocess_none];
     }else if (self.colorMode == 2){
-          [self.pdfViewCtrl SetColorPostProcessMode: e_ptpostprocess_gradient_map];
+        [self.pdfViewCtrl SetColorPostProcessMode: e_ptpostprocess_gradient_map];
     }else if (self.colorMode == 3){
         [self.pdfViewCtrl SetColorPostProcessMode: e_ptpostprocess_night_mode];
     }
 }
+
+-(void)setHideAnnotMenuTools:(NSArray<NSString *> *)hideAnnotMenuTools
+{
+    _hideAnnotMenuTools = hideAnnotMenuTools;
+    
+    NSMutableArray* hideMenuTools = [[NSMutableArray alloc] init];
+    
+    for (NSString* hideMenuTool in hideAnnotMenuTools) {
+        PTExtendedAnnotType toolTypeToHide = [self reactAnnotationNameToAnnotType:hideMenuTool];
+        [hideMenuTools addObject:@(toolTypeToHide)];
+    }
+    
+    self.hideAnnotMenuToolsAnnotTypes = [hideMenuTools copy];
+}
+
+-(PTExtendedAnnotType)reactAnnotationNameToAnnotType:(NSString*)reactString
+{
+    NSDictionary<NSString *, NSNumber *>* typeMap = @{
+        PTAnnotationCreateStickyToolKey : @(PTExtendedAnnotTypeText),
+        PTStickyToolButtonKey : @(PTExtendedAnnotTypeText),
+        PTAnnotationCreateFreeHandToolKey : @(PTExtendedAnnotTypeInk),
+        PTAnnotationCreateTextHighlightToolKey : @(PTExtendedAnnotTypeHighlight),
+        PTAnnotationCreateTextUnderlineToolKey : @(PTExtendedAnnotTypeUnderline),
+        PTAnnotationCreateTextSquigglyToolKey : @(PTExtendedAnnotTypeSquiggly),
+        PTAnnotationCreateTextStrikeoutToolKey : @(PTExtendedAnnotTypeStrikeOut),
+        PTAnnotationCreateFreeTextToolKey : @(PTExtendedAnnotTypeFreeText),
+        PTAnnotationCreateCalloutToolKey : @(PTExtendedAnnotTypeCallout),
+        PTAnnotationCreateSignatureToolKey : @(PTExtendedAnnotTypeSignature),
+        PTAnnotationCreateLineToolKey : @(PTExtendedAnnotTypeLine),
+        PTAnnotationCreateArrowToolKey : @(PTExtendedAnnotTypeArrow),
+        PTAnnotationCreatePolylineToolKey : @(PTExtendedAnnotTypePolyline),
+        PTAnnotationCreateStampToolKey : @(PTExtendedAnnotTypeImageStamp),
+        PTAnnotationCreateRectangleToolKey : @(PTExtendedAnnotTypeSquare),
+        PTAnnotationCreateEllipseToolKey : @(PTExtendedAnnotTypeCircle),
+        PTAnnotationCreatePolygonToolKey : @(PTExtendedAnnotTypePolygon),
+        PTAnnotationCreatePolygonCloudToolKey : @(PTExtendedAnnotTypeCloudy),
+        PTAnnotationCreateDistanceMeasurementToolKey : @(PTExtendedAnnotTypeRuler),
+        PTAnnotationCreatePerimeterMeasurementToolKey : @(PTExtendedAnnotTypePerimeter),
+        PTAnnotationCreateAreaMeasurementToolKey : @(PTExtendedAnnotTypeArea),
+        PTAnnotationCreateFileAttachmentToolKey : @(PTExtendedAnnotTypeFileAttachment),
+        PTAnnotationCreateSoundToolKey : @(PTExtendedAnnotTypeSound),
+//        @"FormCreateTextField" : @(),
+//        @"FormCreateCheckboxField" : @(),
+//        @"FormCreateRadioField" : @(),
+//        @"FormCreateComboBoxField" : @(),
+//        @"FormCreateListBoxField" : @()
+    };
+    
+    PTExtendedAnnotType annotType = PTExtendedAnnotTypeUnknown;
+    
+    if( typeMap[reactString] )
+    {
+        annotType = [typeMap[reactString] unsignedIntValue];
+    }
+
+    return annotType;
+    
+}
+
 
 #pragma mark - Custom headers
 
@@ -1567,6 +1639,142 @@ NS_ASSUME_NONNULL_END
     }
     
     menuController.menuItems = [permittedItems copy];
+}
+
+- (BOOL)rnt_documentViewController:(PTDocumentViewController *)documentViewController filterMenuItemsForAnnotationSelectionMenu:(UIMenuController *)menuController forAnnotation:(PTAnnot *)annot
+{
+    __block PTExtendedAnnotType annotType = PTExtendedAnnotTypeUnknown;
+    
+    NSError *error = nil;
+    [self.pdfViewCtrl DocLockReadWithBlock:^(PTPDFDoc *doc) {
+        if ([annot IsValid]) {
+            annotType = annot.extendedAnnotType;
+        }
+    } error:&error];
+    if (error) {
+        NSLog(@"%@", error);
+    }
+        
+    if ([self.hideAnnotMenuToolsAnnotTypes containsObject:@(annotType)]) {
+        return NO;
+    }
+        
+    NSString *editString = ([annot GetType] == e_ptFreeText) ? PTEditTextMenuItemIdentifierKey : PTEditInkMenuItemIdentifierKey;
+
+    // Mapping from menu item title to identifier.
+    NSDictionary<NSString *, NSString *> *map = @{
+        PTStyleMenuItemTitleKey: PTStyleMenuItemIdentifierKey,
+        PTNoteMenuItemTitleKey: PTNoteMenuItemIdentifierKey,
+        PTCopyMenuItemTitleKey: PTCopyMenuItemIdentifierKey,
+        PTDeleteMenuItemTitleKey: PTDeleteMenuItemIdentifierKey,
+        PTTypeMenuItemTitleKey: PTTypeMenuItemIdentifierKey,
+        PTSearchMenuItemTitleKey: PTSearchMenuItemIdentifierKey,
+        PTEditMenuItemTitleKey: editString,
+        PTFlattenMenuItemTitleKey: PTFlattenMenuItemIdentifierKey,
+        PTOpenMenuItemTitleKey: PTOpenMenuItemIdentifierKey,
+        PTCalibrateMenuItemTitleKey: PTCalibrateMenuItemIdentifierKey,
+    };
+    // Get the localized title for each menu item.
+    NSMutableDictionary<NSString *, NSString *> *localizedMap = [NSMutableDictionary dictionary];
+    for (NSString *key in map) {
+        NSString *localizedKey = PTLocalizedString(key, nil);
+        if (!localizedKey) {
+            localizedKey = key;
+        }
+        localizedMap[localizedKey] = map[key];
+    }
+    
+    NSMutableArray<UIMenuItem *> *permittedItems = [NSMutableArray array];
+    
+    for (UIMenuItem *menuItem in menuController.menuItems) {
+        NSString *menuItemId = localizedMap[menuItem.title];
+        
+        if (!self.annotationMenuItems) {
+            [permittedItems addObject:menuItem];
+        }
+        else {
+            if (menuItemId && [self.annotationMenuItems containsObject:menuItemId]) {
+                [permittedItems addObject:menuItem];
+            }
+        }
+        
+        // Override action of of overridden annotation menu items.
+        if (menuItemId && [self.overrideAnnotationMenuBehavior containsObject:menuItemId]) {
+            NSString *actionName = [NSString stringWithFormat:@"overriddenPressed_%@",
+                                    menuItemId];
+            const SEL selector = NSSelectorFromString(actionName);
+            
+            RNTPT_addMethod([self class], selector, ^(id self) {
+                [self overriddenAnnotationMenuItemPressed:menuItemId];
+            });
+            
+            menuItem.action = selector;
+        }
+    }
+    
+    menuController.menuItems = [permittedItems copy];
+    
+    return YES;
+}
+
+- (void)overriddenAnnotationMenuItemPressed:(NSString *)menuItemId
+{
+    NSMutableArray<PTAnnot *> *annotations = [NSMutableArray array];
+    
+    if ([self.toolManager.tool isKindOfClass:[PTAnnotEditTool class]]) {
+        PTAnnotEditTool *annotEdit = (PTAnnotEditTool *)self.toolManager.tool;
+        if (annotEdit.selectedAnnotations.count > 0) {
+            [annotations addObjectsFromArray:annotEdit.selectedAnnotations];
+        }
+    }
+    else if (self.toolManager.tool.currentAnnotation) {
+        [annotations addObject:self.toolManager.tool.currentAnnotation];
+    }
+    
+    const int pageNumber = self.toolManager.tool.annotationPageNumber;
+    
+    NSArray<NSDictionary<NSString *, id> *> *annotationData = [self annotationDataForAnnotations:annotations pageNumber:pageNumber];
+        
+    if ([self.delegate respondsToSelector:@selector(annotationMenuPressed:annotationMenu:annotations:)]) {
+        [self.delegate annotationMenuPressed:self annotationMenu:menuItemId annotations:annotationData];
+    }
+}
+
+- (NSArray<NSDictionary<NSString *, id> *> *)annotationDataForAnnotations:(NSArray<PTAnnot *> *)annotations pageNumber:(int)pageNumber
+{
+    NSMutableArray<NSDictionary<NSString *, id> *> *annotationData = [NSMutableArray array];
+    
+    if (annotations.count > 0) {
+        [self.pdfViewCtrl DocLockReadWithBlock:^(PTPDFDoc *doc) {
+            for (PTAnnot *annot in annotations) {
+                if (![annot IsValid]) {
+                    continue;
+                }
+                
+                NSString *uniqueId = nil;
+                
+                PTObj *uniqueIdObj = [annot GetUniqueID];
+                if ([uniqueIdObj IsValid] && [uniqueIdObj IsString]) {
+                    uniqueId = [uniqueIdObj GetAsPDFText];
+                }
+                
+                PTPDFRect *screenRect = [self.pdfViewCtrl GetScreenRectForAnnot:annot
+                                                                       page_num:pageNumber];
+                [annotationData addObject:@{
+                    PTAnnotationIdKey: (uniqueId ?: @""),
+                    PTAnnotationPageNumberKey: @(pageNumber),
+                    PTRectKey: @{
+                            PTRectX1Key: @([screenRect GetX1]),
+                            PTRectY1Key: @([screenRect GetY1]),
+                            PTRectX2Key: @([screenRect GetX2]),
+                            PTRectY2Key: @([screenRect GetY2]),
+                    },
+                }];
+            }
+        } error:nil];
+    }
+
+    return [annotationData copy];
 }
 
 - (BOOL)rnt_documentViewController:(PTDocumentViewController *)documentViewController filterMenuItemsForLongPressMenu:(UIMenuController *)menuController

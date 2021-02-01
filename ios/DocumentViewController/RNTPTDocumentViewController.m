@@ -44,21 +44,20 @@ NS_ASSUME_NONNULL_END
         PTNavigationListsViewController* navigationListsViewController = [[PTNavigationListsViewController alloc] initWithToolManager:self.toolManager];
         
         // Initialize an annotation, outline, and bookmark view controller with a PTPDFViewCtrl instance.
-        PTAnnotationViewController* annotationViewController = [[PTAnnotationViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+        PTAnnotationViewController* annotationViewController = [[PTAnnotationViewController alloc] initWithToolManager:self.toolManager];
         annotationViewController.delegate = self;
         
-        PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+        PTThumbnailsViewController *thumbnailsViewController = [[PTThumbnailsViewController alloc] initWithToolManager:self.toolManager];
         thumbnailsViewController.collectionView.delegate = self;
         thumbnailsViewController.tabBarItem.image = [UIImage imageNamed:@"toolbar-page"];
         thumbnailsViewController.editingEnabled = NO;
 
-       
 
-        PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+        PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithToolManager:self.toolManager];
         outlineViewController.delegate = self;
         outlineViewController.title = @"Table of content";
 
-        PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithPDFViewCtrl:self.pdfViewCtrl];
+        PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithToolManager:self.toolManager];
         bookmarkViewController.delegate = self;
 
         // Set the array of child view controllers to display.
@@ -71,6 +70,7 @@ NS_ASSUME_NONNULL_END
         _myNavigationListsViewController = navigationListsViewController;
         
         [self presentViewController:navigationListsViewController animated:YES completion:nil];
+        
     }
     @catch (NSException *exception) {
        return;
@@ -175,13 +175,13 @@ NS_ASSUME_NONNULL_END
     }
 }
 
-- (void)pdfViewCtrl:(PTPDFViewCtrl *)pdfViewCtrl downloadEventType:(PTDownloadedType)type pageNumber:(int)pageNum
+- (void)pdfViewCtrl:(PTPDFViewCtrl *)pdfViewCtrl downloadEventType:(PTDownloadedType)type pageNumber:(int)pageNum message:(NSString *)message
 {
     if (type == e_ptdownloadedtype_finished && !self.documentLoaded) {
         self.needsRemoteDocumentLoaded = YES;
     }
     
-    [super pdfViewCtrl:pdfViewCtrl downloadEventType:type pageNumber:pageNum];
+    [super pdfViewCtrl:pdfViewCtrl downloadEventType:type pageNumber:pageNum message:message];
 }
 
 - (void)pdfViewCtrl:(PTPDFViewCtrl *)pdfViewCtrl pdfScrollViewDidZoom:(UIScrollView *)scrollView
