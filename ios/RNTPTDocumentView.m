@@ -93,7 +93,6 @@ NS_ASSUME_NONNULL_END
             [self.delegate documentViewDetachedFromWindow:self];
         }
     }
-    
 }
 
 - (void)didMoveToSuperview
@@ -233,7 +232,16 @@ NS_ASSUME_NONNULL_END
          addObserver:self selector:@selector(orientationChanged:)
          name:UIDeviceOrientationDidChangeNotification
          object:[UIDevice currentDevice]];
+        
+        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ){
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleAppBecomeActive) name:UIApplicationWillEnterForegroundNotification object:nil];
+        }
+        
     }
+}
+
+- (void) handleAppBecomeActive {
+    [self applyCustomizeRightTools];
 }
 
 - (IBAction)didPressNavigationToolbar:(id)sender
@@ -246,7 +254,10 @@ NS_ASSUME_NONNULL_END
     @try {
         PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
         PTPDFDoc *doc = [pdfViewCtrl GetDoc];
-        PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage] pageNumber:self.pdfViewCtrl.currentPage];
+        
+        NSString *title = [[doc GetPageLabel:self.pdfViewCtrl.currentPage] GetLabelTitle:self.pdfViewCtrl.currentPage];
+
+        PTUserBookmark *userBookmark = [[PTUserBookmark alloc] initWithTitle:[NSString stringWithFormat:@"Page %@", title] pageNumber:self.pdfViewCtrl.currentPage];
         
         [_bookmarkManager addBookmark:userBookmark forDoc:doc];
         
@@ -263,8 +274,11 @@ NS_ASSUME_NONNULL_END
     @try {
         PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
         PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+        
+           NSString *title = [[doc GetPageLabel:self.pdfViewCtrl.currentPage] GetLabelTitle:self.pdfViewCtrl.currentPage];
+        
         PTBookmark *rootBookmark = [_bookmarkManager rootPDFBookmarkForDoc:doc create:YES];
-        PTBookmark *delete = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
+        PTBookmark *delete = [rootBookmark Find: [NSString stringWithFormat:@"Page %@", title]];
         
         if ([delete IsValid])
         {
@@ -1197,8 +1211,11 @@ NS_ASSUME_NONNULL_END
     if(self.showCustomizeTool) {
         PTPDFViewCtrl *pdfViewCtrl = self.pdfViewCtrl;
         PTPDFDoc *doc = [pdfViewCtrl GetDoc];
+        
+         NSString *title = [[doc GetPageLabel:self.pdfViewCtrl.currentPage] GetLabelTitle:self.pdfViewCtrl.currentPage];
+        
         PTBookmark *rootBookmark = [_bookmarkManager rootPDFBookmarkForDoc:doc create:YES];
-        PTBookmark *bookmark = [rootBookmark Find: [NSString stringWithFormat:@"Page %d", pdfViewCtrl.currentPage]];
+        PTBookmark *bookmark = [rootBookmark Find: [NSString stringWithFormat:@"Page %@", title]];
         
         NSMutableArray* rightItems = [self.documentViewController.navigationItem.rightBarButtonItems mutableCopy];
         
@@ -1956,7 +1973,6 @@ NS_ASSUME_NONNULL_END
     if ([self.delegate respondsToSelector:@selector(pageChanged:previousPageNumber:)]) {
         [self.delegate pageChanged:self previousPageNumber:previousPageNumber];
     }
-    
     // Apply bookmark icon
     [self bookmarkIcon];
 }
