@@ -106,6 +106,13 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
         return dialogFragmentTabs;
     }
 
+    @Override
+    protected DialogFragmentTab createOutlineDialogTab() {
+        DialogFragmentTab dialogTab = super.createOutlineDialogTab();
+        dialogTab.toolbarTitle = "Table of Contents";
+        return dialogTab;
+    }
+
     private DialogFragmentTab createThumbnailDialogTab() {
         PdfViewCtrlTabFragment currentFragment = this.getCurrentPdfViewCtrlFragment();
         if (currentFragment == null) {

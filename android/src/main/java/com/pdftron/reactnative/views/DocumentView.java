@@ -347,6 +347,8 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
         if (item.getItemId() == R.id.action_bookmark) {
             try {
                 int pageNumber = this.getPdfViewCtrl().getCurrentPage();
+                String pageTitle = this.getPdfViewCtrl().getDoc().getPageLabel(pageNumber).getLabelTitle(pageNumber);
+                Log.d(TAG, pageTitle);
                 long curObjNum = this.getPdfViewCtrl().getDoc().getPage(pageNumber).getSDFObj().getObjNum();
                 if (this.hasBookmarkAtPage(pageNumber)) {
                     this.removeUserItemBookmarkAt(pageNumber);

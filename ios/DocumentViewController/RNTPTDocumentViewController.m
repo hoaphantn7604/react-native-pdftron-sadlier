@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_END
 
         PTOutlineViewController *outlineViewController = [[PTOutlineViewController alloc] initWithToolManager:self.toolManager];
         outlineViewController.delegate = self;
-        outlineViewController.title = @"Table of content";
+        outlineViewController.title = @"Table of Contents";
 
         PTBookmarkViewController *bookmarkViewController = [[PTBookmarkViewController alloc] initWithToolManager:self.toolManager];
         bookmarkViewController.delegate = self;
