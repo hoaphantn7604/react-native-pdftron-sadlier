@@ -41,9 +41,10 @@
                 android:id="@+id/btnBookmark"
                 android:tint="#FFFFFF"
                 android:background="@null"
+                android:scaleType="fitXY"
                 android:src="@drawable/navigation_toolbar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
         </androidx.appcompat.widget.Toolbar>
 
         <com.pdftron.pdf.controls.SearchToolbar
