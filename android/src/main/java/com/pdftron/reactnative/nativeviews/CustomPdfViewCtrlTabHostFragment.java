@@ -1,6 +1,7 @@
 package com.pdftron.reactnative.nativeviews;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,14 +16,20 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.pdftron.pdf.PDFViewCtrl;
+import com.pdftron.pdf.controls.AnnotationDialogFragment;
 import com.pdftron.pdf.controls.PdfViewCtrlTabFragment;
 import com.pdftron.pdf.controls.PdfViewCtrlTabHostFragment;
 import com.pdftron.pdf.dialog.BookmarksDialogFragment;
 import com.pdftron.pdf.dialog.ViewModePickerDialogFragment;
+import com.pdftron.pdf.dialog.annotlist.AnnotationListSortOrder;
 import com.pdftron.pdf.tools.ToolManager;
 import com.pdftron.pdf.utils.DialogFragmentTab;
+import com.pdftron.pdf.utils.PdfViewCtrlSettingsManager;
 import com.pdftron.pdf.utils.Utils;
 import com.pdftron.reactnative.R;
+import com.pdftron.pdf.tools.R.drawable;
+import com.pdftron.pdf.tools.R.string;
+import com.pdftron.pdf.tools.R.menu;
 
 import java.util.ArrayList;
 
@@ -60,6 +67,26 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
     public boolean showAnnotationToolbar(int mode, ToolManager.ToolMode toolMode) {
         Log.d(TAG, "showAnnotationToolbar: ");
         return super.showAnnotationToolbar(mode, toolMode);
+    }
+
+    @Override
+    protected DialogFragmentTab createAnnotationDialogTab() {
+        PdfViewCtrlTabFragment currentFragment = this.getCurrentPdfViewCtrlFragment();
+        Context context = this.getContext();
+        if (currentFragment != null && context != null) {
+            Bundle bundle = new Bundle();
+            boolean readonly = currentFragment.isTabReadOnly();
+            if (!readonly && this.mViewerConfig != null && !this.mViewerConfig.annotationsListEditingEnabled()) {
+                readonly = true;
+            }
+
+            bundle.putBoolean("is_read_only", readonly);
+            bundle.putBoolean("is_right-to-left", currentFragment.isRtlMode());
+            bundle.putInt("sort_mode_as_int", PdfViewCtrlSettingsManager.getAnnotListSortOrder(context, AnnotationListSortOrder.DATE_ASCENDING));
+            return new DialogFragmentTab(AnnotationDialogFragment.class, "tab-annotation", Utils.getDrawable(context, R.drawable.ic_crayon), (String)null, this.getString(string.bookmark_dialog_fragment_annotation_tab_title), bundle, menu.fragment_annotlist_sort);
+        } else {
+            return null;
+        }
     }
 
     @Override

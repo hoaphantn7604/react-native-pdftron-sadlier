@@ -17,7 +17,8 @@
 
     <item
         android:id="@id/action_viewmode"
-        android:icon="@drawable/ic_viewing_mode_white_24dp"
+        android:icon="@drawable/ic_view_setting"
+        android:iconTint="#FFFFFF"
         android:title="@string/action_view_mode"
         app:showAsAction="always" />
 
