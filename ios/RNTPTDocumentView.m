@@ -1557,11 +1557,11 @@ NS_ASSUME_NONNULL_END
 
 #pragma mark - <PTDocumentViewControllerDelegate>
 
-//- (BOOL)documentViewController:(PTDocumentViewController *)documentViewController shouldExportCachedDocumentAtURL:(NSURL *)cachedDocumentUrl
-//{
-//    // Don't export the downloaded file (ie. keep using the cache file).
-//    return NO;
-//}
+- (BOOL)documentViewController:(PTDocumentViewController *)documentViewController shouldExportCachedDocumentAtURL:(NSURL *)cachedDocumentUrl
+{
+    // Don't export the downloaded file (ie. keep using the cache file).
+    return NO;
+}
 
 - (BOOL)documentViewController:(PTDocumentViewController *)documentViewController shouldDeleteCachedDocumentAtURL:(NSURL *)cachedDocumentUrl
 {
