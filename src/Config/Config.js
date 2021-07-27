@@ -73,6 +73,9 @@ export default {
     formCreateListBoxField: 'FormCreateListBoxField',
     annotationRedact: 'AnnotationRedact',
     annotationMeasurement: 'AnnotationMeasurement',
+    annotationCreateDistanceMeasurement: 'AnnotationCreateDistanceMeasurement',
+    annotationCreatePerimeterMeasurement:'AnnotationCreatePerimeterMeasurement',
+    annotationCreateRectAreaMeasurement: 'AnnotationCreateRectAreaMeasurement',
   },
   FitMode: {
     FitPage: 'FitPage',
