@@ -194,7 +194,7 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
                     this.mBookmarksDialog.setBookmarksDialogListener(this);
                     this.mBookmarksDialog.setBookmarksTabsListener(this);
                     ((CustomBookmarkDialogFragment) this.mBookmarksDialog).setThumbnailClickListener(this);
-                    this.mBookmarksDialog.setStyle(DialogFragment.STYLE_NO_TITLE, R.style.CustomAppTheme);
+                    this.mBookmarksDialog.setStyle(DialogFragment.STYLE_NO_TITLE, R.style.AppTheme);
                     FragmentManager fragmentManager = this.getFragmentManager();
 
                     // Show fullscreen dialog
