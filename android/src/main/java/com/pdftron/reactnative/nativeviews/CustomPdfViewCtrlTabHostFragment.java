@@ -288,7 +288,7 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
 
             CustomViewModePickerDialogFragment dialog = CustomViewModePickerDialogFragment.newInstance(currentViewMode, isRtlMode, isReflowMode, reflowTextSize, hiddenViewModeItems);
             dialog.setViewModePickerDialogFragmentListener(this);
-            dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomAppTheme);
+            dialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
             FragmentManager fragmentManager = this.getFragmentManager();
             if (fragmentManager != null) {
                 dialog.show(fragmentManager, "view_mode_picker");
