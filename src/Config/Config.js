@@ -110,6 +110,7 @@ export default {
     screenCapture: 'screenCapture',
     playSound: 'playSound',
     openAttachment: 'openAttachment',
+    link: 'link',
   },
   LongPressMenu: {
     copy: 'copy',
