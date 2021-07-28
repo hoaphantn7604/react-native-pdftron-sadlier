@@ -714,6 +714,8 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
             mode = ToolManager.ToolMode.STAMPER;
         } else if ("AnnotationCreateRectAreaMeasurement".equals(item)) {
             mode = ToolManager.ToolMode.RECT_AREA_MEASURE_CREATE;
+        } else if ("link".equals(item)) {
+            mode = ToolManager.ToolMode.TEXT_LINK_CREATE;
         }
         return mode;
     }
