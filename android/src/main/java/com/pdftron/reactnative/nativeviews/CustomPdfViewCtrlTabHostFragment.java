@@ -80,7 +80,7 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
                 readonly = true;
             }
 
-            bundle.putBoolean("is_read_only", readonly);
+            bundle.putBoolean("is_read_only", true);
             bundle.putBoolean("is_right-to-left", currentFragment.isRtlMode());
             bundle.putInt("sort_mode_as_int", PdfViewCtrlSettingsManager.getAnnotListSortOrder(context, AnnotationListSortOrder.DATE_ASCENDING));
             return new DialogFragmentTab(AnnotationDialogFragment.class, "tab-annotation", Utils.getDrawable(context, R.drawable.ic_crayon), (String)null, this.getString(string.bookmark_dialog_fragment_annotation_tab_title), bundle, menu.fragment_annotlist_sort);
