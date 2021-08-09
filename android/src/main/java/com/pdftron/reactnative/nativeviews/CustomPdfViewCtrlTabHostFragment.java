@@ -190,7 +190,7 @@ public class CustomPdfViewCtrlTabHostFragment extends PdfViewCtrlTabHostFragment
 
                     // this.mBookmarksDialog = this.createBookmarkDialogFragmentInstance();
                     this.mBookmarksDialog = this.createCustomBookmarkDialogFragmentInstance();
-                    this.mBookmarksDialog.setPdfViewCtrl(pdfViewCtrl).setDialogFragmentTabs(this.getBookmarksDialogTabs(), initialTabIndex).setCurrentBookmark(this.mCurrentBookmark);
+                    this.mBookmarksDialog.setPdfViewCtrl(pdfViewCtrl).setDialogFragmentTabs(this.getBookmarksDialogTabs(), 0).setCurrentBookmark(this.mCurrentBookmark);
                     this.mBookmarksDialog.setBookmarksDialogListener(this);
                     this.mBookmarksDialog.setBookmarksTabsListener(this);
                     ((CustomBookmarkDialogFragment) this.mBookmarksDialog).setThumbnailClickListener(this);
