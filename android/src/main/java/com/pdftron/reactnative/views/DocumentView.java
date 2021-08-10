@@ -471,22 +471,33 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
 
     public void setLayoutMode(String layoutMode) {
         String mode = null;
+        PDFViewCtrl.PagePresentationMode presentationMode = null;
+
         if ("Single".equals(layoutMode)) {
             mode = PdfViewCtrlSettingsManager.KEY_PREF_VIEWMODE_SINGLEPAGE_VALUE;
+            presentationMode = PDFViewCtrl.PagePresentationMode.SINGLE;
         } else if ("Continuous".equals(layoutMode)) {
             mode = PdfViewCtrlSettingsManager.KEY_PREF_VIEWMODE_CONTINUOUS_VALUE;
+            presentationMode = PDFViewCtrl.PagePresentationMode.SINGLE_CONT;
         } else if ("Facing".equals(layoutMode)) {
             mode = PdfViewCtrlSettingsManager.KEY_PREF_VIEWMODE_FACING_VALUE;
+            presentationMode = PDFViewCtrl.PagePresentationMode.FACING;
         } else if ("FacingContinuous".equals(layoutMode)) {
             mode = PdfViewCtrlSettingsManager.KEY_PREF_VIEWMODE_FACING_CONT_VALUE;
+            presentationMode = PDFViewCtrl.PagePresentationMode.FACING_CONT;
         } else if ("FacingCover".equals(layoutMode)) {
             mode = PdfViewCtrlSettingsManager.KEY_PREF_VIEWMODE_FACINGCOVER_VALUE;
+            presentationMode = PDFViewCtrl.PagePresentationMode.FACING_COVER;
         } else if ("FacingCoverContinuous".equals(layoutMode)) {
             mode = PdfViewCtrlSettingsManager.KEY_PREF_VIEWMODE_FACINGCOVER_CONT_VALUE;
+            presentationMode = PDFViewCtrl.PagePresentationMode.FACING_COVER_CONT;
         }
         Context context = getContext();
-        if (mode != null && context != null) {
+        if (mode != null && context != null && presentationMode != null) {
             PdfViewCtrlSettingsManager.updateViewMode(context, mode);
+            if (getPdfViewCtrl() != null) {
+                getPdfViewCtrl().setPagePresentationMode(presentationMode);
+            }
         }
     }
 

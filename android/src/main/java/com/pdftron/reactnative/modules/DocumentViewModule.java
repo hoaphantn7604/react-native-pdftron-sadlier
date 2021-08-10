@@ -79,7 +79,6 @@ public class DocumentViewModule extends ReactContextBaseJavaModule implements Ac
         });
     }
 
-
     @ReactMethod
     public void importAnnotations(final int tag, final String xfdf, final Promise promise) {
         getReactApplicationContext().runOnUiQueueThread(new Runnable() {
@@ -147,6 +146,20 @@ public class DocumentViewModule extends ReactContextBaseJavaModule implements Ac
             public void run() {
                 try {
                     mDocumentViewInstance.setToolMode(tag, item);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setLayoutMode(final int tag, final String item) {
+        getReactApplicationContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mDocumentViewInstance.setLayoutMode(tag, item);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
