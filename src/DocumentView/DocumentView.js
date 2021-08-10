@@ -135,7 +135,7 @@ export default class DocumentView extends PureComponent {
   setLayoutMode = (layoutMode) => {
     const tag = findNodeHandle(this._viewerRef);
     if (tag != null) {
-      DocumentViewManager.setToolMode(tag, layoutMode);
+      DocumentViewManager.setLayoutMode(tag, layoutMode);
     }
   }
 
