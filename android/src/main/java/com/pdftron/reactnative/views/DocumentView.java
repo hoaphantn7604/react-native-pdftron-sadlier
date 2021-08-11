@@ -202,7 +202,25 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
                 if (quickMenu.getFirstRowMenuItems().size() == 0) {
                     quickMenu.setDividerVisibility(View.GONE);
                 }
+            }else {
+                QuickMenuItem itemHighlight = new QuickMenuItem(getContext(), R.id.qm_highlight,
+                        QuickMenuItem.SECOND_ROW_MENU);
+
+                List<QuickMenuItem> removeList = new ArrayList<>();
+                removeList.add(new QuickMenuItem(getContext(),R.id.qm_search));
+                removeList.add(new QuickMenuItem(getContext(),R.id.qm_share));
+                removeList.add(itemHighlight);
+                quickMenu.removeMenuEntries(removeList);
+
+                QuickMenuItem item = new QuickMenuItem(getContext(), R.id.qm_highlight,
+                        QuickMenuItem.FIRST_ROW_MENU);
+                item.setIcon(R.drawable.ic_annotation_highlight_black_24dp);
+                item.setOrder(1);
+                List<QuickMenuItem> addList = new ArrayList<>();
+                addList.add(item);
+                quickMenu.addMenuEntries(addList);
             }
+
             return false;
         }
 
