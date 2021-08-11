@@ -197,7 +197,28 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
                 checkQuickMenu(quickMenu.getFirstRowMenuItems(), keepList, removeList);
                 checkQuickMenu(quickMenu.getSecondRowMenuItems(), keepList, removeList);
                 checkQuickMenu(quickMenu.getOverflowMenuItems(), keepList, removeList);
+
+                removeList.add(new QuickMenuItem(getContext(),R.id.qm_search));
+                removeList.add(new QuickMenuItem(getContext(),R.id.qm_share));
+
+                QuickMenuItem icSecondDelete = new QuickMenuItem(getContext(), R.id.qm_delete,
+                        QuickMenuItem.SECOND_ROW_MENU);
+                QuickMenuItem icFirstDelete = new QuickMenuItem(getContext(), R.id.qm_delete,
+                        QuickMenuItem.FIRST_ROW_MENU);
+                removeList.add(icFirstDelete);
+                removeList.add(icSecondDelete);
+
                 quickMenu.removeMenuEntries(removeList);
+
+                if(quickMenu.getSecondRowMenuItems().size() > 0){
+                    QuickMenuItem itemDelete = new QuickMenuItem(getContext(), R.id.qm_delete,
+                            QuickMenuItem.FIRST_ROW_MENU);
+                    itemDelete.setIcon(R.drawable.ic_delete_black_24dp);
+                    itemDelete.setOrder(1);
+                    List<QuickMenuItem> addList = new ArrayList<>();
+                    addList.add(itemDelete);
+                    quickMenu.addMenuEntries(addList);
+                }
 
                 if (quickMenu.getFirstRowMenuItems().size() == 0) {
                     quickMenu.setDividerVisibility(View.GONE);
@@ -209,6 +230,7 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
                 List<QuickMenuItem> removeList = new ArrayList<>();
                 removeList.add(new QuickMenuItem(getContext(),R.id.qm_search));
                 removeList.add(new QuickMenuItem(getContext(),R.id.qm_share));
+                removeList.add(new QuickMenuItem(getContext(),R.id.qm_appearance));
                 removeList.add(itemHighlight);
                 quickMenu.removeMenuEntries(removeList);
 
