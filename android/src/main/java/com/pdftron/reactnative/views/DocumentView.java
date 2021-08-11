@@ -201,12 +201,11 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
                 removeList.add(new QuickMenuItem(getContext(),R.id.qm_search));
                 removeList.add(new QuickMenuItem(getContext(),R.id.qm_share));
 
-                QuickMenuItem icSecondDelete = new QuickMenuItem(getContext(), R.id.qm_delete,
-                        QuickMenuItem.SECOND_ROW_MENU);
-                QuickMenuItem icFirstDelete = new QuickMenuItem(getContext(), R.id.qm_delete,
-                        QuickMenuItem.FIRST_ROW_MENU);
-                removeList.add(icFirstDelete);
-                removeList.add(icSecondDelete);
+                if(quickMenu.getSecondRowMenuItems().size() > 0){
+                    QuickMenuItem icSecondDelete = new QuickMenuItem(getContext(), R.id.qm_delete,
+                            QuickMenuItem.SECOND_ROW_MENU);
+                    removeList.add(icSecondDelete);
+                }
 
                 quickMenu.removeMenuEntries(removeList);
 
