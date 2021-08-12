@@ -221,35 +221,43 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
             }else {
                 ArrayList<Object> keepList = mAnnotMenuItems.toArrayList();
                 List<QuickMenuItem> removeList = new ArrayList<>();
+                checkQuickMenu(quickMenu.getFirstRowMenuItems(), keepList, removeList);
                 checkQuickMenu(quickMenu.getSecondRowMenuItems(), keepList, removeList);
+                checkQuickMenu(quickMenu.getOverflowMenuItems(), keepList, removeList);
                 removeList.add(new QuickMenuItem(getContext(),R.id.qm_search));
                 removeList.add(new QuickMenuItem(getContext(),R.id.qm_share));
                 quickMenu.removeMenuEntries(removeList);
 
                 List<QuickMenuItem> addList = new ArrayList<>();
 
+                QuickMenuItem annoTTS = new QuickMenuItem(getContext(), R.id.qm_tts,
+                        QuickMenuItem.FIRST_ROW_MENU);
+                annoTTS.setIcon(R.drawable.annotation_icon_sound_outline);
+                annoTTS.setOrder(1);
+                addList.add(annoTTS);
+
                 QuickMenuItem annoHightlight = new QuickMenuItem(getContext(), R.id.qm_highlight,
                         QuickMenuItem.FIRST_ROW_MENU);
                 annoHightlight.setIcon(R.drawable.ic_annotation_highlight_black_24dp);
-                annoHightlight.setOrder(1);
+                annoHightlight.setOrder(2);
                 addList.add(annoHightlight);
 
                 QuickMenuItem annoUnderline = new QuickMenuItem(getContext(), R.id.qm_underline,
                         QuickMenuItem.FIRST_ROW_MENU);
                 annoUnderline.setIcon(R.drawable.ic_annotation_underline_black_24dp);
-                annoUnderline.setOrder(2);
+                annoUnderline.setOrder(3);
                 addList.add(annoUnderline);
 
                 QuickMenuItem annoSquiggly = new QuickMenuItem(getContext(), R.id.qm_squiggly,
                         QuickMenuItem.FIRST_ROW_MENU);
                 annoSquiggly.setIcon(R.drawable.ic_annotation_squiggly_black_24dp);
-                annoSquiggly.setOrder(3);
+                annoSquiggly.setOrder(4);
                 addList.add(annoSquiggly);
 
                 QuickMenuItem annoStrikeout = new QuickMenuItem(getContext(), R.id.qm_strikeout,
                         QuickMenuItem.FIRST_ROW_MENU);
                 annoStrikeout.setIcon(R.drawable.ic_annotation_strikeout_black_24dp);
-                annoStrikeout.setOrder(4);
+                annoStrikeout.setOrder(5);
                 addList.add(annoStrikeout);
 
                 quickMenu.addMenuEntries(addList);
