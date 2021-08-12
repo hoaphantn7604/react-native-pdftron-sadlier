@@ -218,28 +218,46 @@ public class DocumentView extends com.pdftron.pdf.controls.DocumentView implemen
                     addList.add(itemDelete);
                     quickMenu.addMenuEntries(addList);
                 }
-
-                if (quickMenu.getFirstRowMenuItems().size() == 0) {
-                    quickMenu.setDividerVisibility(View.GONE);
-                }
             }else {
-                QuickMenuItem itemHighlight = new QuickMenuItem(getContext(), R.id.qm_highlight,
-                        QuickMenuItem.SECOND_ROW_MENU);
-
+                ArrayList<Object> keepList = mAnnotMenuItems.toArrayList();
                 List<QuickMenuItem> removeList = new ArrayList<>();
+                checkQuickMenu(quickMenu.getSecondRowMenuItems(), keepList, removeList);
                 removeList.add(new QuickMenuItem(getContext(),R.id.qm_search));
                 removeList.add(new QuickMenuItem(getContext(),R.id.qm_share));
-                removeList.add(new QuickMenuItem(getContext(),R.id.qm_appearance));
-                removeList.add(itemHighlight);
                 quickMenu.removeMenuEntries(removeList);
 
-                QuickMenuItem item = new QuickMenuItem(getContext(), R.id.qm_highlight,
-                        QuickMenuItem.FIRST_ROW_MENU);
-                item.setIcon(R.drawable.ic_annotation_highlight_black_24dp);
-                item.setOrder(1);
                 List<QuickMenuItem> addList = new ArrayList<>();
-                addList.add(item);
+
+                QuickMenuItem annoHightlight = new QuickMenuItem(getContext(), R.id.qm_highlight,
+                        QuickMenuItem.FIRST_ROW_MENU);
+                annoHightlight.setIcon(R.drawable.ic_annotation_highlight_black_24dp);
+                annoHightlight.setOrder(1);
+                addList.add(annoHightlight);
+
+                QuickMenuItem annoUnderline = new QuickMenuItem(getContext(), R.id.qm_underline,
+                        QuickMenuItem.FIRST_ROW_MENU);
+                annoUnderline.setIcon(R.drawable.ic_annotation_underline_black_24dp);
+                annoUnderline.setOrder(2);
+                addList.add(annoUnderline);
+
+                QuickMenuItem annoSquiggly = new QuickMenuItem(getContext(), R.id.qm_squiggly,
+                        QuickMenuItem.FIRST_ROW_MENU);
+                annoSquiggly.setIcon(R.drawable.ic_annotation_squiggly_black_24dp);
+                annoSquiggly.setOrder(3);
+                addList.add(annoSquiggly);
+
+                QuickMenuItem annoStrikeout = new QuickMenuItem(getContext(), R.id.qm_strikeout,
+                        QuickMenuItem.FIRST_ROW_MENU);
+                annoStrikeout.setIcon(R.drawable.ic_annotation_strikeout_black_24dp);
+                annoStrikeout.setOrder(4);
+                addList.add(annoStrikeout);
+
                 quickMenu.addMenuEntries(addList);
+
+                if(quickMenu.getFirstRowMenuItems().size() > 6){
+                    quickMenu.dismiss();
+                }
+
             }
 
             return false;
